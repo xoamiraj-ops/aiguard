@@ -10,8 +10,8 @@ android {
         applicationId = "com.arzban.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.3.0"
+        versionCode = 5
+        versionName = "1.4.0"
     }
 
     buildTypes {
@@ -25,4 +25,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation("androidx.work:work-runtime:2.12.0")
+    implementation("org.jsoup:jsoup:1.23.2")
 }
