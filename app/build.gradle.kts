@@ -30,4 +30,5 @@ android {
 dependencies {
     implementation("androidx.work:work-runtime:2.12.0")
     implementation("org.jsoup:jsoup:1.23.2")
+    testImplementation("junit:junit:4.13.2")
 }
