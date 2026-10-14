@@ -39,6 +39,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PriceStore.ensureTelegramMigration(this);
+        if (PriceStore.isAutoEnabled(this)) {
+            MarketSyncScheduler.ensureScheduled(this);
+        }
+
         setContentView(R.layout.activity_main);
 
         currencyList = findViewById(R.id.currency_list);
@@ -56,17 +62,14 @@ public class MainActivity extends Activity {
         startButton.setOnClickListener(v -> {
             maybeRequestNotificationPermission();
             PriceStore.setAutoEnabled(this, true);
-            Intent i = new Intent(this, PriceUpdateService.class);
-            i.setAction(PriceUpdateService.ACTION_START);
-            startForegroundService(i);
+            MarketSyncScheduler.ensureScheduled(this);
+            MarketSyncScheduler.enqueueNow(this);
             render();
         });
 
         stopButton.setOnClickListener(v -> {
             PriceStore.setAutoEnabled(this, false);
-            Intent i = new Intent(this, PriceUpdateService.class);
-            i.setAction(PriceUpdateService.ACTION_STOP);
-            startService(i);
+            MarketSyncScheduler.cancelPeriodic(this);
             render();
         });
 
@@ -81,7 +84,10 @@ public class MainActivity extends Activity {
         );
 
         render();
-        if (PriceStore.lastFetchEpochMs(this) <= 0L) refreshOnce();
+
+        if (PriceStore.lastFetchEpochMs(this) <= 0L) {
+            MarketSyncScheduler.enqueueNow(this);
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -89,7 +95,7 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
         if (!receiverRegistered) {
-            IntentFilter filter = new IntentFilter(PriceUpdateService.ACTION_PRICE_UPDATED);
+            IntentFilter filter = new IntentFilter("com.arzban.app.PRICE_UPDATED");
             if (Build.VERSION.SDK_INT >= 33) {
                 registerReceiver(updateReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
             } else {
@@ -115,9 +121,7 @@ public class MainActivity extends Activity {
     }
 
     private void refreshOnce() {
-        Intent i = new Intent(this, PriceUpdateService.class);
-        i.setAction(PriceUpdateService.ACTION_REFRESH_ONCE);
-        startForegroundService(i);
+        MarketSyncScheduler.enqueueNow(this);
     }
 
     private void render() {
@@ -125,35 +129,34 @@ public class MainActivity extends Activity {
         fillGroup(goldList, Asset.Group.GOLD);
         fillGroup(coinList, Asset.Group.COIN);
 
-        String date = PriceStore.lastMarketDate(this);
         String time = PriceStore.lastMarketTime(this);
         if ((time == null || time.isEmpty()) && PriceStore.lastFetchEpochMs(this) > 0L) {
             time = PriceFormat.localTime(PriceStore.lastFetchEpochMs(this));
         }
 
-        if ((date == null || date.isEmpty()) && PriceStore.lastFetchEpochMs(this) <= 0L) {
-            lastUpdatedText.setText("هنوز نرخ بازار دریافت نشده");
-            marketStatus.setText("○ وضعیت بازار نامشخص");
+        if (PriceStore.lastFetchEpochMs(this) <= 0L) {
+            lastUpdatedText.setText("هنوز نرخ معتبری از @DO_L4 دریافت نشده");
+            marketStatus.setText("○ در انتظار اولین دریافت از @DO_L4");
             marketStatus.setTextColor(Color.parseColor("#8A907F"));
         } else {
-            StringBuilder sb = new StringBuilder("آخرین بروزرسانی");
-            if (date != null && !date.isEmpty()) sb.append(" • ").append(date);
-            if (time != null && !time.isEmpty()) sb.append(" • ").append(time);
-            lastUpdatedText.setText(sb.toString());
+            lastUpdatedText.setText(
+                    "آخرین بروزرسانی قیمت" +
+                    (time == null || time.isEmpty() ? "" : " • " + time)
+            );
 
-            if (PriceStore.isMarketOpen(this)) {
-                marketStatus.setText("● بازار فعال");
+            if (PriceStore.isSourceFresh(this)) {
+                marketStatus.setText("● منبع @DO_L4 — نرخ جدید دریافت شده");
                 marketStatus.setTextColor(Color.parseColor("#5E8C61"));
             } else {
-                marketStatus.setText("● بازار بسته — آخرین نرخ ثبت‌شده");
+                marketStatus.setText("○ منبع @DO_L4 — آخرین نرخ منتشرشده");
                 marketStatus.setTextColor(Color.parseColor("#8A907F"));
             }
         }
 
         boolean auto = PriceStore.isAutoEnabled(this);
         serviceStatus.setText(auto
-                ? "● حالت زنده فعال است"
-                : "○ حالت زنده خاموش است");
+                ? "● بررسی خودکار کانال فعال است • حدود هر ۳۰ دقیقه"
+                : "○ بررسی خودکار کانال خاموش است");
         serviceStatus.setTextColor(Color.parseColor(auto ? "#5E8C61" : "#777777"));
         startButton.setEnabled(!auto);
         stopButton.setEnabled(auto);
@@ -161,7 +164,7 @@ public class MainActivity extends Activity {
         String err = PriceStore.lastError(this);
         errorText.setVisibility(err.isEmpty() ? View.GONE : View.VISIBLE);
         if (!err.isEmpty()) {
-            errorText.setText("اتصال ناموفق؛ آخرین نرخ‌های ذخیره‌شده نمایش داده می‌شوند.");
+            errorText.setText("بررسی @DO_L4 ناموفق بود؛ آخرین نرخ معتبر ذخیره‌شده نمایش داده می‌شود.");
         }
     }
 
