@@ -13,29 +13,20 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity {
     private LinearLayout currencyList;
     private LinearLayout goldList;
     private LinearLayout coinList;
     private TextView lastUpdatedText;
+    private TextView marketStatus;
     private TextView serviceStatus;
     private TextView errorText;
     private Button startButton;
     private Button stopButton;
-    private Spinner widgetAsset1;
-    private Spinner widgetAsset2;
-    private Spinner widgetAsset3;
-    private List<Asset> widgetChoices;
     private boolean receiverRegistered = false;
 
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
@@ -53,17 +44,12 @@ public class MainActivity extends Activity {
         goldList = findViewById(R.id.gold_list);
         coinList = findViewById(R.id.coin_list);
         lastUpdatedText = findViewById(R.id.last_updated_text);
+        marketStatus = findViewById(R.id.market_status);
         serviceStatus = findViewById(R.id.service_status);
         errorText = findViewById(R.id.error_text);
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
-        widgetAsset1 = findViewById(R.id.widget_asset_1);
-        widgetAsset2 = findViewById(R.id.widget_asset_2);
-        widgetAsset3 = findViewById(R.id.widget_asset_3);
 
-        setupWidgetSelectors();
-
-        findViewById(R.id.save_widget_button).setOnClickListener(v -> saveWidgetSelection());
         findViewById(R.id.refresh_button).setOnClickListener(v -> refreshOnce());
 
         startButton.setOnClickListener(v -> {
@@ -89,44 +75,12 @@ public class MainActivity extends Activity {
             startActivity(i);
         });
 
+        findViewById(R.id.privacy_button).setOnClickListener(v ->
+                startActivity(new Intent(this, PrivacyActivity.class))
+        );
+
         render();
         if (PriceStore.lastFetchEpochMs(this) <= 0L) refreshOnce();
-    }
-
-    private void setupWidgetSelectors() {
-        widgetChoices = new ArrayList<>(Asset.widgetChoices());
-        List<String> labels = new ArrayList<>();
-        for (Asset asset : widgetChoices) labels.add(asset.displayName());
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                labels
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        widgetAsset1.setAdapter(adapter);
-        widgetAsset2.setAdapter(adapter);
-        widgetAsset3.setAdapter(adapter);
-
-        Asset[] selected = PriceStore.getSelectedAssets(this);
-        widgetAsset1.setSelection(widgetChoices.indexOf(selected[0]));
-        widgetAsset2.setSelection(widgetChoices.indexOf(selected[1]));
-        widgetAsset3.setSelection(widgetChoices.indexOf(selected[2]));
-    }
-
-    private void saveWidgetSelection() {
-        Asset a1 = widgetChoices.get(widgetAsset1.getSelectedItemPosition());
-        Asset a2 = widgetChoices.get(widgetAsset2.getSelectedItemPosition());
-        Asset a3 = widgetChoices.get(widgetAsset3.getSelectedItemPosition());
-
-        if (!PriceStore.setSelectedAssets(this, a1, a2, a3)) {
-            Toast.makeText(this, "سه مورد متفاوت انتخاب کنید.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        ArzbanWidgetProvider.updateAll(this);
-        Toast.makeText(this, "انتخاب‌های ویجت ذخیره شد.", Toast.LENGTH_SHORT).show();
-        refreshOnce();
     }
 
     @Override
@@ -175,19 +129,29 @@ public class MainActivity extends Activity {
             time = PriceFormat.localTime(PriceStore.lastFetchEpochMs(this));
         }
 
-        if ((date == null || date.isEmpty()) && (time == null || time.isEmpty())) {
+        if ((date == null || date.isEmpty()) && PriceStore.lastFetchEpochMs(this) <= 0L) {
             lastUpdatedText.setText("هنوز نرخ بازار دریافت نشده");
+            marketStatus.setText("○ وضعیت بازار نامشخص");
+            marketStatus.setTextColor(Color.parseColor("#8A907F"));
         } else {
             StringBuilder sb = new StringBuilder("آخرین بروزرسانی");
             if (date != null && !date.isEmpty()) sb.append(" • ").append(date);
             if (time != null && !time.isEmpty()) sb.append(" • ").append(time);
             lastUpdatedText.setText(sb.toString());
+
+            if (PriceStore.isMarketOpen(this)) {
+                marketStatus.setText("● بازار فعال");
+                marketStatus.setTextColor(Color.parseColor("#5E8C61"));
+            } else {
+                marketStatus.setText("● بازار بسته — آخرین نرخ ثبت‌شده");
+                marketStatus.setTextColor(Color.parseColor("#8A907F"));
+            }
         }
 
         boolean auto = PriceStore.isAutoEnabled(this);
         serviceStatus.setText(auto
-                ? "● بروزرسانی خودکار هر ۶۰ ثانیه فعال است"
-                : "○ بروزرسانی ۶۰ ثانیه‌ای خاموش است");
+                ? "● حالت زنده فعال است"
+                : "○ حالت زنده خاموش است");
         serviceStatus.setTextColor(Color.parseColor(auto ? "#5E8C61" : "#777777"));
         startButton.setEnabled(!auto);
         stopButton.setEnabled(auto);
