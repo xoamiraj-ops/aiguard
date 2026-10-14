@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:fillViewport="true"
+    android:layoutDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="ارزبان"
+            android:src="@drawable/ic_arzban"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="حریم خصوصی و منابع داده"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:lineSpacingExtra="5dp"
+            android:text="ارزبان برای نمایش نرخ ارز، طلا و سکه به اینترنت متصل می‌شود. در نسخه فعلی، برنامه حساب کاربری، شماره تلفن، موقعیت مکانی، مخاطبین، فایل‌های شخصی، شناسه تبلیغاتی یا اطلاعات پرداخت شما را جمع‌آوری نمی‌کند.
+
+نرخ‌های فعلی از سرویس Nerkhsanj دریافت می‌شوند. این سرویس هنگام اتصال ممکن است مانند هر سرویس اینترنتی اطلاعات فنی متعارف شبکه، از جمله آدرس IP، را در سطح سرور مشاهده کند. ارزبان شناسه منحصربه‌فرد دستگاه را برای دریافت نرخ ارسال نمی‌کند.
+
+حالت زنده فقط با اقدام کاربر فعال می‌شود و یک اعلان دائمی قابل مشاهده دارد. کاربر هر زمان بخواهد می‌تواند حالت زنده را متوقف کند.
+
+قیمت‌ها صرفاً جهت اطلاع هستند و پیشنهاد خرید، فروش یا سرمایه‌گذاری محسوب نمی‌شوند. در زمان بسته‌بودن بازار، آخرین نرخ ثبت‌شده نمایش داده می‌شود.
+
+منبع نرخ: Nerkhsanj — بازار آزاد تهران."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/privacy_close_button"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="22dp"
+            android:backgroundTint="@color/button_primary"
+            android:text="بازگشت"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+</ScrollView>
