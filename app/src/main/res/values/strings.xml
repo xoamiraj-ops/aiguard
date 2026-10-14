@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ارزبان</string>
-    <string name="widget_description">نمایش لحظه‌ای سه ارز، طلا یا سکه دلخواه روی صفحه اصلی</string>
+    <string name="widget_description">نمایش نرخ بازار روی صفحه اصلی</string>
+    <string name="widget_single_description">ارزبان — ویجت تک‌قیمت</string>
+    <string name="widget_double_description">ارزبان — ویجت دو‌قیمت</string>
+    <string name="widget_triple_description">ارزبان — ویجت سه‌قیمت</string>
 </resources>
