@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -23,9 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".PrivacyActivity"
-            android:exported="false" />
+        <activity android:name=".PrivacyActivity" android:exported="false" />
 
         <activity
             android:name=".WidgetConfigActivity"
@@ -44,21 +42,21 @@
                 android:value="User initiated live market price and home screen widget updates" />
         </service>
 
-        <receiver android:name=".SingleWidgetProvider" android:exported="true">
+        <receiver android:name=".SingleWidgetProvider" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_single_info" />
         </receiver>
 
-        <receiver android:name=".DoubleWidgetProvider" android:exported="true">
+        <receiver android:name=".DoubleWidgetProvider" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_double_info" />
         </receiver>
 
-        <receiver android:name=".TripleWidgetProvider" android:exported="true">
+        <receiver android:name=".TripleWidgetProvider" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
