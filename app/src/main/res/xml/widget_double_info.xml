@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="230dp"
+    android:minHeight="150dp"
+    android:minResizeWidth="200dp"
+    android:minResizeHeight="135dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_double"
+    android:configure="com.arzban.app.WidgetConfigActivity"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable"
+    android:description="@string/widget_double_description"/>
