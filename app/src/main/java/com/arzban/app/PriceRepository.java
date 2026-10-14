@@ -32,41 +32,23 @@ public final class PriceRepository {
     private PriceRepository() {}
 
     public static TelegramMarketResult fetchTelegramMarket() throws Exception {
-        Document doc = Jsoup.connect(CHANNEL_URL)
-                .userAgent("Mozilla/5.0 (Linux; Android 16) Arzban/1.4")
-                .referrer("https://t.me/")
-                .timeout(15_000)
-                .maxBodySize(2_500_000)
-                .get();
+        ScanState state = new ScanState();
 
-        Elements messages = doc.select("div.tgme_widget_message");
-        if (messages.isEmpty()) {
-            throw new IllegalStateException("No Telegram channel messages found");
+        Document first = fetchDocument(CHANNEL_URL);
+        scanDocument(first, state, true);
+
+        // In very active periods the latest public page may contain only rapid dollar posts.
+        // Walk back a few public pages until the latest full market table is found.
+        int fallbackPages = 0;
+        while (state.full == null && state.minMessageId > 0L && fallbackPages < 3) {
+            long before = state.minMessageId;
+            state.minMessageId = Long.MAX_VALUE;
+            Document older = fetchDocument(CHANNEL_URL + "?before=" + before);
+            scanDocument(older, state, false);
+            fallbackPages++;
         }
 
-        Post full = null;
-        Post dollar = null;
-
-        for (Element message : messages) {
-            Element textNode = message.selectFirst(".tgme_widget_message_text");
-            if (textNode == null) continue;
-
-            String text = normalize(textNode.wholeText());
-            if (text.isEmpty()) continue;
-
-            long id = parseMessageId(message.attr("data-post"));
-            long epochMs = parseMessageEpoch(message);
-
-            if (isFullTable(text) && (full == null || id >= full.id)) {
-                full = new Post(id, text, epochMs);
-            }
-
-            if (isDollarFuture(text) && (dollar == null || id >= dollar.id)) {
-                dollar = new Post(id, text, epochMs);
-            }
-        }
-
-        if (full == null && dollar == null) {
+        if (state.full == null && state.dollar == null) {
             throw new IllegalStateException("No supported price post found in @DO_L4");
         }
 
@@ -74,19 +56,19 @@ public final class PriceRepository {
         long newestEpoch = 0L;
         String displayTime = "";
 
-        if (full != null) {
-            parseFullTable(full, quotes);
-            newestEpoch = Math.max(newestEpoch, full.epochMs);
-            displayTime = formatTime(full.epochMs);
+        if (state.full != null) {
+            parseFullTable(state.full, quotes);
+            newestEpoch = Math.max(newestEpoch, state.full.epochMs);
+            displayTime = formatTime(state.full.epochMs);
         }
 
-        if (dollar != null) {
+        if (state.dollar != null) {
             AssetQuote oldDollar = quotes.get(Asset.DOLLAR);
             Double dailyChange = oldDollar == null ? null : oldDollar.dailyChangePercent;
 
-            Double buy = parseAmount(BUY, dollar.text);
-            Double sell = parseAmount(SELL, dollar.text);
-            Double trade = parseAmount(TRADE, dollar.text);
+            Double buy = parseAmount(BUY, state.dollar.text);
+            Double sell = parseAmount(SELL, state.dollar.text);
+            Double trade = parseAmount(TRADE, state.dollar.text);
 
             double current = trade != null
                     ? trade
@@ -102,13 +84,13 @@ public final class PriceRepository {
                                 current,
                                 dailyChange,
                                 "",
-                                formatTime(dollar.epochMs),
-                                dollar.epochMs
+                                formatTime(state.dollar.epochMs),
+                                state.dollar.epochMs
                         )
                 );
-                if (dollar.epochMs >= newestEpoch) {
-                    newestEpoch = dollar.epochMs;
-                    displayTime = formatTime(dollar.epochMs);
+                if (state.dollar.epochMs >= newestEpoch) {
+                    newestEpoch = state.dollar.epochMs;
+                    displayTime = formatTime(state.dollar.epochMs);
                 }
             }
         }
@@ -128,10 +110,10 @@ public final class PriceRepository {
 
         return new TelegramMarketResult(
                 snapshot,
-                full == null ? 0L : full.id,
-                full == null ? "" : sha256(full.text),
-                dollar == null ? 0L : dollar.id,
-                dollar == null ? "" : sha256(dollar.text),
+                state.full == null ? 0L : state.full.id,
+                state.full == null ? "" : sha256(state.full.text),
+                state.dollar == null ? 0L : state.dollar.id,
+                state.dollar == null ? "" : sha256(state.dollar.text),
                 newestEpoch
         );
     }
@@ -139,6 +121,44 @@ public final class PriceRepository {
     // Kept for compatibility with older internal code paths.
     public static MarketSnapshot fetchMarket() throws Exception {
         return fetchTelegramMarket().snapshot;
+    }
+
+    private static Document fetchDocument(String url) throws Exception {
+        return Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Linux; Android 16) Arzban/1.4")
+                .referrer("https://t.me/")
+                .timeout(15_000)
+                .maxBodySize(2_500_000)
+                .get();
+    }
+
+    private static void scanDocument(Document doc, ScanState state, boolean includeDollar) {
+        Elements messages = doc.select("div.tgme_widget_message");
+        if (messages.isEmpty()) return;
+
+        for (Element message : messages) {
+            long id = parseMessageId(message.attr("data-post"));
+            if (id > 0L) state.minMessageId = Math.min(state.minMessageId, id);
+
+            Element textNode = message.selectFirst(".tgme_widget_message_text");
+            if (textNode == null) continue;
+
+            String text = normalize(textNode.wholeText());
+            if (text.isEmpty()) continue;
+
+            long epochMs = parseMessageEpoch(message);
+
+            if (isFullTable(text)
+                    && (state.full == null || id > state.full.id)) {
+                state.full = new Post(id, text, epochMs);
+            }
+
+            if (includeDollar
+                    && isDollarFuture(text)
+                    && (state.dollar == null || id > state.dollar.id)) {
+                state.dollar = new Post(id, text, epochMs);
+            }
+        }
     }
 
     private static boolean isFullTable(String text) {
@@ -337,5 +357,11 @@ public final class PriceRepository {
             this.text = text;
             this.epochMs = epochMs;
         }
+    }
+
+    private static final class ScanState {
+        Post full;
+        Post dollar;
+        long minMessageId = Long.MAX_VALUE;
     }
 }
