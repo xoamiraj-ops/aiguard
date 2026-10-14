@@ -75,12 +75,13 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <View
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
-        android:background="#24D9C89A"/>
+        android:background="#24D9C89A"
+        android:text=""/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -114,12 +115,13 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <View
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
-        android:background="#24D9C89A"/>
+        android:background="#24D9C89A"
+        android:text=""/>
 
     <LinearLayout
         android:layout_width="match_parent"
