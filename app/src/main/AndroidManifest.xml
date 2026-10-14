@@ -7,8 +7,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_arzban"
-        android:roundIcon="@drawable/ic_arzban"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Arzban"
@@ -23,24 +23,46 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".PrivacyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".WidgetConfigActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".PriceUpdateService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User enabled live currency widget refresh every 60 seconds" />
+                android:value="User initiated live market price and home screen widget updates" />
         </service>
 
-        <receiver
-            android:name=".ArzbanWidgetProvider"
-            android:exported="true">
+        <receiver android:name=".SingleWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/arzban_widget_info" />
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_single_info" />
+        </receiver>
+
+        <receiver android:name=".DoubleWidgetProvider" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_double_info" />
+        </receiver>
+
+        <receiver android:name=".TripleWidgetProvider" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_triple_info" />
         </receiver>
     </application>
 </manifest>
