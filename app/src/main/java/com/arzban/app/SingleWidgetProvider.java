@@ -3,11 +3,22 @@ package com.arzban.app;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.os.Bundle;
 
 public class SingleWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] ids) {
         for (int id : ids) ArzbanWidgetProvider.updateOne(context, manager, id, 1);
+    }
+
+    @Override
+    public void onAppWidgetOptionsChanged(
+            Context context,
+            AppWidgetManager manager,
+            int appWidgetId,
+            Bundle newOptions
+    ) {
+        ArzbanWidgetProvider.updateOne(context, manager, appWidgetId, 1);
     }
 
     @Override
