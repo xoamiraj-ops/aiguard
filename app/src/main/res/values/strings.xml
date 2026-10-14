@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ارزبان</string>
-    <string name="widget_description">نمایش قیمت لحظه‌ای دلار بازار آزاد روی صفحه اصلی</string>
+    <string name="widget_description">نمایش لحظه‌ای سه ارز، طلا یا سکه دلخواه روی صفحه اصلی</string>
 </resources>
