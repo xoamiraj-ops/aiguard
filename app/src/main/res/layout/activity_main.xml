@@ -78,7 +78,7 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_status"
             android:padding="13dp"
-            android:text="○ حالت زنده خاموش است"
+            android:text="○ بررسی خودکار کانال خاموش است"
             android:textSize="13sp"/>
 
         <TextView
@@ -98,7 +98,7 @@
             android:layout_height="52dp"
             android:layout_marginTop="12dp"
             android:backgroundTint="@color/button_primary"
-            android:text="فعال‌سازی حالت زنده"
+            android:text="فعال‌سازی بررسی خودکار"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -110,7 +110,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/button_secondary"
-            android:text="بروزرسانی همین حالا"
+            android:text="بررسی کانال همین حالا"
             android:textAllCaps="false"
             android:textColor="@color/text_primary"
             android:textSize="14sp"/>
@@ -121,7 +121,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/button_secondary"
-            android:text="توقف حالت زنده"
+            android:text="توقف بررسی خودکار"
             android:textAllCaps="false"
             android:textColor="#C65A52"
             android:textSize="14sp"/>
@@ -236,7 +236,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="منبع فعلی: Nerkhsanj • بازار آزاد تهران • تومان"
+            android:text="منبع قیمت: کانال عمومی تلگرام @DO_L4 • تومان"
             android:textColor="@color/text_tertiary"
             android:textSize="10sp"/>
     </LinearLayout>
