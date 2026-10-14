@@ -33,8 +33,12 @@ public final class WidgetPrefs {
         Asset[] defaults = new Asset[]{Asset.DOLLAR, Asset.GOLD18, Asset.COIN_EMAMI};
         Asset[] result = new Asset[count];
         SharedPreferences p = prefs(c);
+
         for (int i = 0; i < count; i++) {
-            result[i] = Asset.fromKey(p.getString(key(widgetId, "asset_" + i), defaults[i].key));
+            Asset selected = Asset.fromKey(
+                    p.getString(key(widgetId, "asset_" + i), defaults[i].key)
+            );
+            result[i] = selected.sourceSupported ? selected : defaults[i];
         }
         return result;
     }
