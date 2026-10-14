@@ -13,7 +13,7 @@ public final class PriceFormat {
     }
 
     public static String value(Asset asset, double value) {
-        if (asset.unit == Asset.Unit.USD) {
+        if (asset.unit == Asset.Unit.USD || asset.decimals > 0) {
             NumberFormat f = NumberFormat.getNumberInstance(Locale.US);
             f.setMinimumFractionDigits(asset.decimals);
             f.setMaximumFractionDigits(asset.decimals);
