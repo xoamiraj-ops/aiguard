@@ -13,11 +13,12 @@
         android:padding="22dp">
 
         <ImageView
-            android:layout_width="74dp"
-            android:layout_height="74dp"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
             android:layout_gravity="center_horizontal"
             android:contentDescription="ارزبان"
-            android:src="@drawable/ic_arzban"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/arzban_brand_icon"/>
 
         <TextView
             android:id="@+id/config_title"
@@ -55,11 +56,11 @@
                     android:layout_height="wrap_content"
                     android:text="مورد اول"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"/>
+                    android:textSize="13sp"/>
                 <Spinner
                     android:id="@+id/config_asset_1"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"/>
+                    android:layout_height="56dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -73,11 +74,11 @@
                     android:layout_height="wrap_content"
                     android:text="مورد دوم"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"/>
+                    android:textSize="13sp"/>
                 <Spinner
                     android:id="@+id/config_asset_2"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"/>
+                    android:layout_height="56dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -91,11 +92,11 @@
                     android:layout_height="wrap_content"
                     android:text="مورد سوم"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"/>
+                    android:textSize="13sp"/>
                 <Spinner
                     android:id="@+id/config_asset_3"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"/>
+                    android:layout_height="56dp"/>
             </LinearLayout>
         </LinearLayout>
 
