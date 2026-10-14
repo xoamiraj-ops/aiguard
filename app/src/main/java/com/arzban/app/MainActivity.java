@@ -1,6 +1,7 @@
 package com.arzban.app;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -83,6 +84,7 @@ public class MainActivity extends Activity {
         if (PriceStore.lastFetchEpochMs(this) <= 0L) refreshOnce();
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onStart() {
         super.onStart();
