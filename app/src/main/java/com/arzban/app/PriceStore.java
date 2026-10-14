@@ -12,6 +12,14 @@ public final class PriceStore {
     private static final String LAST_DATE = "market_date";
     private static final String LAST_TIME = "market_time";
     private static final String LAST_FETCH = "market_fetched_at";
+    private static final String LAST_CHECK = "market_last_check";
+    private static final String SOURCE_VERSION = "source_version";
+    private static final String SOURCE_FULL_ID = "source_full_id";
+    private static final String SOURCE_FULL_HASH = "source_full_hash";
+    private static final String SOURCE_DOLLAR_ID = "source_dollar_id";
+    private static final String SOURCE_DOLLAR_HASH = "source_dollar_hash";
+
+    private static final int TELEGRAM_SOURCE_VERSION = 2;
 
     private PriceStore() {}
 
@@ -21,6 +29,36 @@ public final class PriceStore {
 
     private static String k(Asset asset, String suffix) {
         return "asset_" + asset.key + "_" + suffix;
+    }
+
+    public static void ensureTelegramMigration(Context c) {
+        SharedPreferences p = prefs(c);
+        if (p.getInt(SOURCE_VERSION, 0) >= TELEGRAM_SOURCE_VERSION) return;
+
+        SharedPreferences.Editor e = p.edit()
+                .putInt(SOURCE_VERSION, TELEGRAM_SOURCE_VERSION)
+                .putBoolean(AUTO, true)
+                .putString(ERROR, "")
+                .putLong(LAST_FETCH, 0L)
+                .putLong(LAST_CHECK, 0L)
+                .putString(LAST_DATE, "")
+                .putString(LAST_TIME, "")
+                .putLong(SOURCE_FULL_ID, 0L)
+                .putString(SOURCE_FULL_HASH, "")
+                .putLong(SOURCE_DOLLAR_ID, 0L)
+                .putString(SOURCE_DOLLAR_HASH, "");
+
+        // Values from the old Nerkhsanj source must never be shown as DO_L4 data.
+        for (Asset asset : Asset.values()) {
+            e.remove(k(asset, "value"));
+            e.remove(k(asset, "previous_value"));
+            e.remove(k(asset, "has_change"));
+            e.remove(k(asset, "change"));
+            e.remove(k(asset, "date"));
+            e.remove(k(asset, "time"));
+            e.remove(k(asset, "fetched"));
+        }
+        e.apply();
     }
 
     public static void saveSnapshot(Context c, MarketSnapshot snapshot) {
@@ -43,12 +81,50 @@ public final class PriceStore {
             e.putBoolean(k(q.asset, "has_change"), q.dailyChangePercent != null);
             if (q.dailyChangePercent != null) {
                 e.putString(k(q.asset, "change"), Double.toString(q.dailyChangePercent));
+            } else {
+                e.remove(k(q.asset, "change"));
             }
             e.putString(k(q.asset, "date"), q.serverDate);
             e.putString(k(q.asset, "time"), q.serverTime);
             e.putLong(k(q.asset, "fetched"), q.fetchedAtEpochMs);
         }
         e.apply();
+    }
+
+    public static void saveTelegramSourceState(Context c, TelegramMarketResult result) {
+        prefs(c).edit()
+                .putLong(SOURCE_FULL_ID, result.fullTableMessageId)
+                .putString(SOURCE_FULL_HASH, result.fullTableHash)
+                .putLong(SOURCE_DOLLAR_ID, result.dollarMessageId)
+                .putString(SOURCE_DOLLAR_HASH, result.dollarHash)
+                .putLong(LAST_CHECK, System.currentTimeMillis())
+                .apply();
+    }
+
+    public static boolean isTelegramResultNew(Context c, TelegramMarketResult result) {
+        SharedPreferences p = prefs(c);
+
+        long oldFullId = p.getLong(SOURCE_FULL_ID, 0L);
+        String oldFullHash = p.getString(SOURCE_FULL_HASH, "") == null
+                ? "" : p.getString(SOURCE_FULL_HASH, "");
+
+        long oldDollarId = p.getLong(SOURCE_DOLLAR_ID, 0L);
+        String oldDollarHash = p.getString(SOURCE_DOLLAR_HASH, "") == null
+                ? "" : p.getString(SOURCE_DOLLAR_HASH, "");
+
+        boolean fullChanged = result.fullTableMessageId > oldFullId
+                || (result.fullTableMessageId == oldFullId
+                && !result.fullTableHash.equals(oldFullHash));
+
+        boolean dollarChanged = result.dollarMessageId > oldDollarId
+                || (result.dollarMessageId == oldDollarId
+                && !result.dollarHash.equals(oldDollarHash));
+
+        return fullChanged || dollarChanged || lastFetchEpochMs(c) <= 0L;
+    }
+
+    public static void markChecked(Context c) {
+        prefs(c).edit().putLong(LAST_CHECK, System.currentTimeMillis()).apply();
     }
 
     public static AssetQuote loadQuote(Context c, Asset asset) {
@@ -95,6 +171,10 @@ public final class PriceStore {
         return prefs(c).getLong(LAST_FETCH, 0L);
     }
 
+    public static long lastCheckEpochMs(Context c) {
+        return prefs(c).getLong(LAST_CHECK, 0L);
+    }
+
     public static String lastMarketDate(Context c) {
         return prefs(c).getString(LAST_DATE, "");
     }
@@ -103,9 +183,10 @@ public final class PriceStore {
         return prefs(c).getString(LAST_TIME, "");
     }
 
-    public static boolean isMarketOpen(Context c) {
-        String time = lastMarketTime(c);
-        return time != null && !time.isEmpty();
+    public static boolean isSourceFresh(Context c) {
+        long last = lastFetchEpochMs(c);
+        if (last <= 0L) return false;
+        return System.currentTimeMillis() - last < 2L * 60L * 60L * 1000L;
     }
 
     public static void setAutoEnabled(Context c, boolean enabled) {
@@ -113,7 +194,7 @@ public final class PriceStore {
     }
 
     public static boolean isAutoEnabled(Context c) {
-        return prefs(c).getBoolean(AUTO, false);
+        return prefs(c).getBoolean(AUTO, true);
     }
 
     public static void setLastError(Context c, String message) {
