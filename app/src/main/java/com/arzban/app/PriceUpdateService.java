@@ -10,6 +10,7 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -144,11 +145,18 @@ public class PriceUpdateService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        Asset first = PriceStore.getSelectedAssets(this)[0];
-        AssetQuote q = PriceStore.loadQuote(this, first);
-        String content = q == null
-                ? "در حال دریافت نرخ بازار…"
-                : first.titleFa + " " + PriceFormat.value(q.asset, q.value) + " " + q.asset.unitLabel() + " • هر ۶۰ ثانیه";
+        Asset asset = Asset.DOLLAR;
+        AssetQuote q = PriceStore.loadQuote(this, asset);
+        String content;
+
+        if (q == null) {
+            content = "در حال دریافت نرخ بازار…";
+        } else {
+            String trend = trendText(asset, q.value);
+            content = asset.titleFa + " " +
+                    PriceFormat.value(asset, q.value) + " " +
+                    asset.unitLabel() + "  " + trend;
+        }
 
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -159,9 +167,23 @@ public class PriceUpdateService extends Service {
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .addAction(new Notification.Action.Builder(
-                        R.drawable.ic_notification, "توقف", stop
+                        R.drawable.ic_notification, "توقف حالت زنده", stop
                 ).build())
                 .build();
+    }
+
+    private String trendText(Asset asset, double current) {
+        Double previous = PriceStore.previousValue(this, asset);
+        if (previous == null || previous <= 0) return "⚪ ●";
+
+        double pct = ((current - previous) / previous) * 100.0;
+        if (pct > 0.0001) {
+            return "🟢 ▲ " + String.format(Locale.US, "+%.2f%%", pct);
+        }
+        if (pct < -0.0001) {
+            return "🔴 ▼ " + String.format(Locale.US, "%.2f%%", pct);
+        }
+        return "⚪ ● 0.00%";
     }
 
     private void createChannel() {
@@ -170,7 +192,7 @@ public class PriceUpdateService extends Service {
                 "بروزرسانی زنده بازار",
                 NotificationManager.IMPORTANCE_LOW
         );
-        channel.setDescription("بروزرسانی ۶۰ ثانیه‌ای ارز، طلا و سکه در ارزبان");
+        channel.setDescription("نمایش زنده نرخ ارز، طلا و سکه در ارزبان");
         channel.setShowBadge(false);
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
