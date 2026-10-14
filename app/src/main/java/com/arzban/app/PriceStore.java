@@ -12,9 +12,6 @@ public final class PriceStore {
     private static final String LAST_DATE = "market_date";
     private static final String LAST_TIME = "market_time";
     private static final String LAST_FETCH = "market_fetched_at";
-    private static final String SELECTED_1 = "selected_1";
-    private static final String SELECTED_2 = "selected_2";
-    private static final String SELECTED_3 = "selected_3";
 
     private PriceStore() {}
 
@@ -27,7 +24,8 @@ public final class PriceStore {
     }
 
     public static void saveSnapshot(Context c, MarketSnapshot snapshot) {
-        SharedPreferences.Editor e = prefs(c).edit()
+        SharedPreferences p = prefs(c);
+        SharedPreferences.Editor e = p.edit()
                 .putString(LAST_DATE, snapshot.serverDate)
                 .putString(LAST_TIME, snapshot.serverTime)
                 .putLong(LAST_FETCH, snapshot.fetchedAtEpochMs)
@@ -35,6 +33,12 @@ public final class PriceStore {
 
         for (Map.Entry<Asset, AssetQuote> entry : snapshot.quotes.entrySet()) {
             AssetQuote q = entry.getValue();
+
+            String oldRaw = p.getString(k(q.asset, "value"), null);
+            if (oldRaw != null) {
+                e.putString(k(q.asset, "previous_value"), oldRaw);
+            }
+
             e.putString(k(q.asset, "value"), Double.toString(q.value));
             e.putBoolean(k(q.asset, "has_change"), q.dailyChangePercent != null);
             if (q.dailyChangePercent != null) {
@@ -76,26 +80,15 @@ public final class PriceStore {
         );
     }
 
-    public static Asset[] getSelectedAssets(Context c) {
-        SharedPreferences p = prefs(c);
-        Asset a1 = Asset.fromKey(p.getString(SELECTED_1, Asset.DOLLAR.key));
-        Asset a2 = Asset.fromKey(p.getString(SELECTED_2, Asset.GOLD18.key));
-        Asset a3 = Asset.fromKey(p.getString(SELECTED_3, Asset.COIN_EMAMI.key));
-
-        if (a2 == a1) a2 = Asset.GOLD18;
-        if (a3 == a1 || a3 == a2) a3 = Asset.COIN_EMAMI;
-        return new Asset[]{a1, a2, a3};
-    }
-
-    public static boolean setSelectedAssets(Context c, Asset a1, Asset a2, Asset a3) {
-        if (a1 == null || a2 == null || a3 == null) return false;
-        if (a1 == a2 || a1 == a3 || a2 == a3) return false;
-        prefs(c).edit()
-                .putString(SELECTED_1, a1.key)
-                .putString(SELECTED_2, a2.key)
-                .putString(SELECTED_3, a3.key)
-                .apply();
-        return true;
+    public static Double previousValue(Context c, Asset asset) {
+        String raw = prefs(c).getString(k(asset, "previous_value"), null);
+        if (raw == null) return null;
+        try {
+            double v = Double.parseDouble(raw);
+            return v > 0 ? v : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static long lastFetchEpochMs(Context c) {
@@ -108,6 +101,11 @@ public final class PriceStore {
 
     public static String lastMarketTime(Context c) {
         return prefs(c).getString(LAST_TIME, "");
+    }
+
+    public static boolean isMarketOpen(Context c) {
+        String time = lastMarketTime(c);
+        return time != null && !time.isEmpty();
     }
 
     public static void setAutoEnabled(Context c, boolean enabled) {
