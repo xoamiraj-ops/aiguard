@@ -11,18 +11,31 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
-    private TextView priceText;
-    private TextView changeText;
-    private TextView updatedText;
+    private LinearLayout currencyList;
+    private LinearLayout goldList;
+    private LinearLayout coinList;
+    private TextView lastUpdatedText;
     private TextView serviceStatus;
     private TextView errorText;
     private Button startButton;
     private Button stopButton;
+    private Spinner widgetAsset1;
+    private Spinner widgetAsset2;
+    private Spinner widgetAsset3;
+    private List<Asset> widgetChoices;
     private boolean receiverRegistered = false;
 
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
@@ -36,14 +49,21 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        priceText = findViewById(R.id.price_text);
-        changeText = findViewById(R.id.change_text);
-        updatedText = findViewById(R.id.updated_text);
+        currencyList = findViewById(R.id.currency_list);
+        goldList = findViewById(R.id.gold_list);
+        coinList = findViewById(R.id.coin_list);
+        lastUpdatedText = findViewById(R.id.last_updated_text);
         serviceStatus = findViewById(R.id.service_status);
         errorText = findViewById(R.id.error_text);
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
+        widgetAsset1 = findViewById(R.id.widget_asset_1);
+        widgetAsset2 = findViewById(R.id.widget_asset_2);
+        widgetAsset3 = findViewById(R.id.widget_asset_3);
 
+        setupWidgetSelectors();
+
+        findViewById(R.id.save_widget_button).setOnClickListener(v -> saveWidgetSelection());
         findViewById(R.id.refresh_button).setOnClickListener(v -> refreshOnce());
 
         startButton.setOnClickListener(v -> {
@@ -70,7 +90,43 @@ public class MainActivity extends Activity {
         });
 
         render();
-        if (PriceStore.loadQuote(this) == null) refreshOnce();
+        if (PriceStore.lastFetchEpochMs(this) <= 0L) refreshOnce();
+    }
+
+    private void setupWidgetSelectors() {
+        widgetChoices = new ArrayList<>(Asset.widgetChoices());
+        List<String> labels = new ArrayList<>();
+        for (Asset asset : widgetChoices) labels.add(asset.displayName());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                labels
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        widgetAsset1.setAdapter(adapter);
+        widgetAsset2.setAdapter(adapter);
+        widgetAsset3.setAdapter(adapter);
+
+        Asset[] selected = PriceStore.getSelectedAssets(this);
+        widgetAsset1.setSelection(widgetChoices.indexOf(selected[0]));
+        widgetAsset2.setSelection(widgetChoices.indexOf(selected[1]));
+        widgetAsset3.setSelection(widgetChoices.indexOf(selected[2]));
+    }
+
+    private void saveWidgetSelection() {
+        Asset a1 = widgetChoices.get(widgetAsset1.getSelectedItemPosition());
+        Asset a2 = widgetChoices.get(widgetAsset2.getSelectedItemPosition());
+        Asset a3 = widgetChoices.get(widgetAsset3.getSelectedItemPosition());
+
+        if (!PriceStore.setSelectedAssets(this, a1, a2, a3)) {
+            Toast.makeText(this, "سه مورد متفاوت انتخاب کنید.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ArzbanWidgetProvider.updateAll(this);
+        Toast.makeText(this, "انتخاب‌های ویجت ذخیره شد.", Toast.LENGTH_SHORT).show();
+        refreshOnce();
     }
 
     @Override
@@ -109,29 +165,26 @@ public class MainActivity extends Activity {
     }
 
     private void render() {
-        Quote q = PriceStore.loadQuote(this);
-        boolean auto = PriceStore.isAutoEnabled(this);
+        fillGroup(currencyList, Asset.Group.CURRENCY);
+        fillGroup(goldList, Asset.Group.GOLD);
+        fillGroup(coinList, Asset.Group.COIN);
 
-        if (q == null) {
-            priceText.setText("—");
-            changeText.setText("—");
-            updatedText.setText("هنوز قیمتی دریافت نشده");
-        } else {
-            priceText.setText(PriceFormat.toman(q.priceToman));
-            changeText.setText(PriceFormat.change(q.dailyChangePercent));
-            String when = "آخرین بروزرسانی";
-            if (!q.serverDate.isEmpty()) when += " • " + q.serverDate;
-            if (!q.serverTime.isEmpty()) when += " • " + q.serverTime;
-            updatedText.setText(when);
-
-            String color = "#8A907F";
-            if (q.dailyChangePercent != null) {
-                if (q.dailyChangePercent > 0) color = "#5E8C61";
-                else if (q.dailyChangePercent < 0) color = "#C65A52";
-            }
-            changeText.setTextColor(Color.parseColor(color));
+        String date = PriceStore.lastMarketDate(this);
+        String time = PriceStore.lastMarketTime(this);
+        if ((time == null || time.isEmpty()) && PriceStore.lastFetchEpochMs(this) > 0L) {
+            time = PriceFormat.localTime(PriceStore.lastFetchEpochMs(this));
         }
 
+        if ((date == null || date.isEmpty()) && (time == null || time.isEmpty())) {
+            lastUpdatedText.setText("هنوز نرخ بازار دریافت نشده");
+        } else {
+            StringBuilder sb = new StringBuilder("آخرین بروزرسانی");
+            if (date != null && !date.isEmpty()) sb.append(" • ").append(date);
+            if (time != null && !time.isEmpty()) sb.append(" • ").append(time);
+            lastUpdatedText.setText(sb.toString());
+        }
+
+        boolean auto = PriceStore.isAutoEnabled(this);
         serviceStatus.setText(auto
                 ? "● بروزرسانی خودکار هر ۶۰ ثانیه فعال است"
                 : "○ بروزرسانی ۶۰ ثانیه‌ای خاموش است");
@@ -142,7 +195,41 @@ public class MainActivity extends Activity {
         String err = PriceStore.lastError(this);
         errorText.setVisibility(err.isEmpty() ? View.GONE : View.VISIBLE);
         if (!err.isEmpty()) {
-            errorText.setText("اتصال ناموفق؛ آخرین قیمت ذخیره‌شده نمایش داده می‌شود.");
+            errorText.setText("اتصال ناموفق؛ آخرین نرخ‌های ذخیره‌شده نمایش داده می‌شوند.");
+        }
+    }
+
+    private void fillGroup(LinearLayout container, Asset.Group group) {
+        container.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        for (Asset asset : Asset.inGroup(group)) {
+            View row = inflater.inflate(R.layout.market_row, container, false);
+            TextView title = row.findViewById(R.id.row_title);
+            TextView symbol = row.findViewById(R.id.row_symbol);
+            TextView price = row.findViewById(R.id.row_price);
+            TextView change = row.findViewById(R.id.row_change);
+
+            title.setText(asset.titleFa);
+            symbol.setText(asset.symbol);
+
+            AssetQuote q = PriceStore.loadQuote(this, asset);
+            if (q == null) {
+                price.setText("—");
+                change.setText("—");
+                change.setTextColor(Color.parseColor("#8A907F"));
+            } else {
+                price.setText(PriceFormat.value(asset, q.value) + " " + asset.unitLabel());
+                change.setText(PriceFormat.change(q.dailyChangePercent));
+                String color = "#8A907F";
+                if (q.dailyChangePercent != null) {
+                    if (q.dailyChangePercent > 0) color = "#5E8C61";
+                    else if (q.dailyChangePercent < 0) color = "#C65A52";
+                }
+                change.setTextColor(Color.parseColor(color));
+            }
+
+            container.addView(row);
         }
     }
 
