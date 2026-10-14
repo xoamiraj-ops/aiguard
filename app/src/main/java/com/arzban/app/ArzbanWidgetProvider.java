@@ -62,7 +62,7 @@ public final class ArzbanWidgetProvider {
             long fetched = PriceStore.lastFetchEpochMs(context);
             time = fetched > 0 ? PriceFormat.localTime(fetched) : "—";
         }
-        v.setTextViewText(R.id.widget_time, "آخرین بروزرسانی " + time);
+        v.setTextViewText(R.id.widget_time, "@DO_L4 • آخرین بروزرسانی " + time);
 
         applyResponsiveTypography(manager, widgetId, v, count);
 
