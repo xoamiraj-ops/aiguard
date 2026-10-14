@@ -7,7 +7,7 @@
     android:background="@drawable/bg_widget"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:padding="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,75 +16,140 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:contentDescription="ارزبان"
             android:src="@drawable/ic_arzban"/>
 
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="7dp"
             android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ارزبان"
-                android:textColor="@color/widget_primary"
-                android:textSize="13sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="USD • دلار"
-                android:textColor="@color/widget_secondary"
-                android:textSize="10sp"/>
-        </LinearLayout>
+            android:text="ارزبان"
+            android:textColor="@color/widget_primary"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
 
         <ImageView
             android:id="@+id/widget_refresh"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@drawable/bg_refresh"
             android:contentDescription="بروزرسانی"
-            android:padding="8dp"
+            android:padding="7dp"
             android:src="@drawable/ic_refresh"
             android:tint="@color/widget_primary"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_price"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/widget_asset1_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/widget_secondary"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset1_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/widget_primary"
+            android:textDirection="ltr"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset1_change"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/widget_tertiary"
+            android:textDirection="ltr"
+            android:textSize="9sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:layout_marginTop="6dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="—"
-        android:textColor="@color/widget_primary"
-        android:textDirection="ltr"
-        android:textSize="27sp"
-        android:textStyle="bold"/>
+        android:layout_marginBottom="6dp"
+        android:background="#24D9C89A"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <TextView
+            android:id="@+id/widget_asset2_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="تومان"
             android:textColor="@color/widget_secondary"
-            android:textSize="11sp"/>
+            android:textSize="10sp"
+            android:textStyle="bold"/>
         <TextView
-            android:id="@+id/widget_change"
+            android:id="@+id/widget_asset2_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="—"
+            android:textColor="@color/widget_primary"
+            android:textDirection="ltr"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset2_change"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
             android:textColor="@color/widget_tertiary"
-            android:textSize="11sp"
+            android:textDirection="ltr"
+            android:textSize="9sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="#24D9C89A"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/widget_asset3_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/widget_secondary"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset3_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/widget_primary"
+            android:textDirection="ltr"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset3_change"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/widget_tertiary"
+            android:textDirection="ltr"
+            android:textSize="9sp"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -92,8 +157,7 @@
         android:id="@+id/widget_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text=""
+        android:layout_marginTop="8dp"
         android:textColor="@color/widget_tertiary"
-        android:textSize="9sp"/>
+        android:textSize="8sp"/>
 </LinearLayout>
