@@ -56,3 +56,20 @@ jobs:
             Arzban-1.3.0-unsigned.apk
             Arzban-1.3.0-unsigned.aab
           if-no-files-found: error
+
+
+      - name: Package Android signing tools
+        shell: bash
+        run: |
+          mkdir -p android-signing-tools/lib
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib/apksigner.jar" android-signing-tools/lib/
+
+      - name: Upload Android signing tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-36-Signing-Tools
+          path: android-signing-tools/
+          if-no-files-found: error
+          retention-days: 1
