@@ -1,18 +1,19 @@
-name: Build Arzban APK
+name: Build Arzban 1.2.0
 
 on:
   push:
     branches:
-      - arzban-v1.1
+      - arzban-v1.2-store-ready
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,27 +24,39 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android 35
+      - name: Install Android 36
         shell: bash
         run: |
           SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Gradle 8.9
+      - name: Gradle 8.11.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.11.1'
 
-      - name: Build debug APK
-        run: gradle --no-daemon :app:assembleDebug
+      - name: Lint
+        run: gradle --no-daemon :app:lintDebug
 
-      - name: Prepare APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk Arzban-1.1.0.apk
+      - name: Build APK and AAB
+        run: gradle --no-daemon :app:assembleDebug :app:bundleDebug
+
+      - name: Prepare artifacts
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk Arzban-1.2.0.apk
+          cp app/build/outputs/bundle/debug/app-debug.aab Arzban-1.2.0-debug.aab
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Arzban-1.1.0-APK
-          path: Arzban-1.1.0.apk
+          name: Arzban-1.2.0-APK
+          path: Arzban-1.2.0.apk
+          if-no-files-found: error
+
+      - name: Upload AAB test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Arzban-1.2.0-AAB-test
+          path: Arzban-1.2.0-debug.aab
           if-no-files-found: error
