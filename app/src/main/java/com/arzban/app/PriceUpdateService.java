@@ -25,6 +25,7 @@ public class PriceUpdateService extends Service {
     private static final String CHANNEL_ID = "live_price";
     private static final int NOTIFICATION_ID = 1001;
     private static final long REFRESH_SECONDS = 60L;
+    private static final long MIN_NETWORK_INTERVAL_MS = 55_000L;
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> periodicTask;
@@ -91,10 +92,18 @@ public class PriceUpdateService extends Service {
         executor.execute(() -> {
             if (!fetchInFlight.compareAndSet(false, true)) return;
             try {
-                Quote quote = PriceRepository.fetchDollar();
-                PriceStore.saveQuote(this, quote);
+                long age = System.currentTimeMillis() - PriceStore.lastFetchEpochMs(this);
+                if (age < MIN_NETWORK_INTERVAL_MS) {
+                    ArzbanWidgetProvider.updateAll(this);
+                    updateNotification();
+                    sendBroadcast(new Intent(ACTION_PRICE_UPDATED).setPackage(getPackageName()));
+                    return;
+                }
+
+                MarketSnapshot snapshot = PriceRepository.fetchMarket();
+                PriceStore.saveSnapshot(this, snapshot);
                 ArzbanWidgetProvider.updateAll(this);
-                updateNotification(quote);
+                updateNotification();
                 sendBroadcast(new Intent(ACTION_PRICE_UPDATED).setPackage(getPackageName()));
             } catch (Exception e) {
                 PriceStore.setLastError(this, e.getMessage() == null ? "خطا در دریافت قیمت" : e.getMessage());
@@ -110,7 +119,7 @@ public class PriceUpdateService extends Service {
     }
 
     private void startAsForeground() {
-        Notification n = buildNotification(PriceStore.loadQuote(this));
+        Notification n = buildNotification();
         if (Build.VERSION.SDK_INT >= 34) {
             startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         } else {
@@ -118,11 +127,11 @@ public class PriceUpdateService extends Service {
         }
     }
 
-    private void updateNotification(Quote q) {
-        getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, buildNotification(q));
+    private void updateNotification() {
+        getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, buildNotification());
     }
 
-    private Notification buildNotification(Quote q) {
+    private Notification buildNotification() {
         PendingIntent open = PendingIntent.getActivity(
                 this, 1, new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -135,9 +144,11 @@ public class PriceUpdateService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
+        Asset first = PriceStore.getSelectedAssets(this)[0];
+        AssetQuote q = PriceStore.loadQuote(this, first);
         String content = q == null
-                ? "در حال دریافت قیمت دلار…"
-                : PriceFormat.toman(q.priceToman) + " تومان • هر ۶۰ ثانیه";
+                ? "در حال دریافت نرخ بازار…"
+                : first.titleFa + " " + PriceFormat.value(q.asset, q.value) + " " + q.asset.unitLabel() + " • هر ۶۰ ثانیه";
 
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -156,10 +167,10 @@ public class PriceUpdateService extends Service {
     private void createChannel() {
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                "بروزرسانی زنده دلار",
+                "بروزرسانی زنده بازار",
                 NotificationManager.IMPORTANCE_LOW
         );
-        channel.setDescription("بروزرسانی ۶۰ ثانیه‌ای ویجت ارزبان");
+        channel.setDescription("بروزرسانی ۶۰ ثانیه‌ای ارز، طلا و سکه در ارزبان");
         channel.setShowBadge(false);
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
