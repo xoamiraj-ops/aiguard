@@ -74,9 +74,8 @@ public final class ArzbanWidgetProvider {
         );
         v.setOnClickPendingIntent(R.id.widget_root, open);
 
-        Intent refreshIntent = new Intent(context, PriceUpdateService.class);
-        refreshIntent.setAction(PriceUpdateService.ACTION_REFRESH_ONCE);
-        PendingIntent refresh = PendingIntent.getForegroundService(
+        Intent refreshIntent = new Intent(context, RefreshReceiver.class);
+        PendingIntent refresh = PendingIntent.getBroadcast(
                 context,
                 2000 + widgetId,
                 refreshIntent,
@@ -103,9 +102,9 @@ public final class ArzbanWidgetProvider {
             setSizes(v, 1, 15f * sizeFactor, 30f * sizeFactor, 13f * sizeFactor);
             v.setTextViewTextSize(R.id.widget_time, TypedValue.COMPLEX_UNIT_SP, 10f * sizeFactor);
         } else if (count == 2) {
-            sizeFactor = clamp(Math.min(width / 250f, height / 130f), 1.0f, 1.40f);
-            setSizes(v, 2, 14f * sizeFactor, 21f * sizeFactor, 12f * sizeFactor);
-            v.setTextViewTextSize(R.id.widget_time, TypedValue.COMPLEX_UNIT_SP, 10f * sizeFactor);
+            sizeFactor = clamp(Math.min(width / 250f, height / 130f), 1.0f, 1.18f);
+            setSizes(v, 2, 12.5f * sizeFactor, 18.5f * sizeFactor, 10.5f * sizeFactor);
+            v.setTextViewTextSize(R.id.widget_time, TypedValue.COMPLEX_UNIT_SP, 9.5f * sizeFactor);
         } else {
             sizeFactor = clamp(Math.min(width / 250f, height / 165f), 1.0f, 1.35f);
             setSizes(v, 3, 13f * sizeFactor, 18f * sizeFactor, 11f * sizeFactor);
