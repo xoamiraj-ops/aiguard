@@ -5,9 +5,8 @@
     android:layout_height="match_parent"
     android:layoutDirection="rtl"
     android:background="@drawable/bg_widget"
-    android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:padding="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,58 +15,66 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:contentDescription="ارزبان"
-            android:src="@drawable/ic_arzban"/>
+            android:src="@drawable/arzban_brand_icon"/>
 
         <TextView
             android:id="@+id/widget_asset1_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
+            android:maxLines="1"
             android:textColor="@color/widget_secondary"
-            android:textSize="12sp"
+            android:textSize="15sp"
             android:textStyle="bold"/>
 
         <ImageView
             android:id="@+id/widget_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/bg_refresh"
             android:contentDescription="بروزرسانی"
-            android:padding="7dp"
+            android:padding="9dp"
             android:src="@drawable/ic_refresh"
             android:tint="@color/widget_primary"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_asset1_price"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="start"
-        android:textColor="@color/widget_primary"
-        android:textDirection="ltr"
-        android:textSize="27sp"
-        android:textStyle="bold"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/widget_asset1_change"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:textColor="@color/widget_tertiary"
-        android:textDirection="ltr"
-        android:textSize="12sp"
-        android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_asset1_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:maxLines="1"
+            android:textColor="@color/widget_primary"
+            android:textDirection="ltr"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/widget_asset1_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/widget_tertiary"
+            android:textDirection="ltr"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/widget_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:textColor="@color/widget_tertiary"
-        android:textSize="9sp"/>
+        android:textSize="10sp"/>
 </LinearLayout>
