@@ -39,6 +39,9 @@ jobs:
       - name: Lint release
         run: gradle --no-daemon :app:lintRelease
 
+      - name: PHP gateway syntax check
+        run: php -l gateway/api.php
+
       - name: Build unsigned release APK
         run: gradle --no-daemon :app:assembleRelease
 
@@ -61,3 +64,19 @@ jobs:
           name: Parsban-Call-AI-Gateway-0.1.0
           path: Parsban-Call-AI-Gateway-0.1.0.zip
           if-no-files-found: error
+
+      - name: Package Android signing tools
+        shell: bash
+        run: |
+          mkdir -p android-signing-tools/lib
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib/apksigner.jar" android-signing-tools/lib/
+
+      - name: Upload Android signing tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-36-Signing-Tools
+          path: android-signing-tools/
+          if-no-files-found: error
+          retention-days: 1
