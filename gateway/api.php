@@ -126,9 +126,11 @@ function crm_lookup(array $config, string $phone): ?array {
         ]];
 
         $params = [
-            'maxSize' => 1,
-            'select' => 'id,name,phoneNumber',
-            'whereGroup' => json_encode($where, JSON_UNESCAPED_UNICODE),
+            'searchParams' => json_encode([
+                'maxSize' => 1,
+                'select' => ['id', 'name', 'phoneNumber'],
+                'where' => $where,
+            ], JSON_UNESCAPED_UNICODE),
         ];
 
         $result = espo_request($config, 'GET', 'Account', null, $params);
@@ -141,7 +143,13 @@ function crm_lookup(array $config, string $phone): ?array {
             ];
         }
 
-        $params['select'] = 'id,name,phoneNumber,accountId,accountName';
+        $params = [
+            'searchParams' => json_encode([
+                'maxSize' => 1,
+                'select' => ['id', 'name', 'phoneNumber', 'accountId', 'accountName'],
+                'where' => $where,
+            ], JSON_UNESCAPED_UNICODE),
+        ];
         $result = espo_request($config, 'GET', 'Contact', null, $params);
         if (!empty($result['list'][0]['id'])) {
             $row = $result['list'][0];
