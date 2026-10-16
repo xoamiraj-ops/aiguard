@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:layoutDirection="rtl">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="راه‌اندازی Parsban Call AI"
+            android:textColor="@color/green"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="آدرس Gateway"
+            android:textColor="@color/text"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/input_gateway"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:hint="https://crm.amniathoshmand.ir/call-ai/api.php"
+            android:inputType="textUri"
+            android:textDirection="ltr"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="توکن دستگاه"
+            android:textColor="@color/text"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/input_token"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:hint="Device token"
+            android:inputType="textPassword"
+            android:textDirection="ltr"/>
+
+        <Button
+            android:id="@+id/button_folder"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="14dp"
+            android:text="انتخاب پوشه ضبط مکالمات سامسونگ"
+            android:textAllCaps="false"/>
+
+        <TextView
+            android:id="@+id/folder_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="پوشه‌ای انتخاب نشده"
+            android:textColor="@color/muted"
+            android:textSize="12sp"/>
+
+        <Button
+            android:id="@+id/button_permissions"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="14dp"
+            android:text="اعطای مجوزهای تماس و اعلان"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_primary"
+            android:text="ذخیره تنظیمات"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:lineSpacingExtra="3dp"
+            android:text="اپ فایل ضبط را حذف یا تغییر نمی‌دهد. فقط پوشه‌ای که خودت انتخاب می‌کنی خوانده می‌شود."
+            android:textColor="@color/muted"
+            android:textSize="12sp"/>
+    </LinearLayout>
+</ScrollView>
