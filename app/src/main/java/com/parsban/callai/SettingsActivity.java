@@ -97,9 +97,11 @@ public class SettingsActivity extends Activity {
         Uri uri = data.getData();
         if (uri == null) return;
 
-        int flags = data.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION;
         try {
-            getContentResolver().takePersistableUriPermission(uri, flags);
+            getContentResolver().takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
         } catch (Exception e) {
             Toast.makeText(this, "ثبت دسترسی دائمی پوشه ناموفق بود", Toast.LENGTH_LONG).show();
             return;
