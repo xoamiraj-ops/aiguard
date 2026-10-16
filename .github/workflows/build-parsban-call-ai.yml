@@ -1,0 +1,63 @@
+name: Build Parsban Call AI MVP
+
+on:
+  push:
+    branches:
+      - parsban-call-ai-mvp
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android 36
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Lint release
+        run: gradle --no-daemon :app:lintRelease
+
+      - name: Build unsigned release APK
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Package
+        shell: bash
+        run: |
+          cp app/build/outputs/apk/release/app-release-unsigned.apk Parsban-Call-AI-0.1.0-unsigned.apk
+          zip -r Parsban-Call-AI-Gateway-0.1.0.zip gateway -x 'gateway/config.local.php'
+
+      - name: Upload Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: Parsban-Call-AI-0.1.0-UNSIGNED
+          path: Parsban-Call-AI-0.1.0-unsigned.apk
+          if-no-files-found: error
+
+      - name: Upload Gateway
+        uses: actions/upload-artifact@v4
+        with:
+          name: Parsban-Call-AI-Gateway-0.1.0
+          path: Parsban-Call-AI-Gateway-0.1.0.zip
+          if-no-files-found: error
