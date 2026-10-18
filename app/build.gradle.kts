@@ -7,7 +7,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.parsban.callai"
+        applicationId = "com.avakav.personal"
         minSdk = 29
         targetSdk = 36
         versionCode = 1

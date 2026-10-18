@@ -13,13 +13,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"/>
+        <activity android:name=".CallDetailActivity" android:exported="false"/>
+        <activity android:name=".SettingsActivity" android:exported="false"/>
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -27,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".ParsbanCallScreeningService"
+            android:name=".AvaKavCallScreeningService"
             android:exported="true"
             android:permission="android.permission.BIND_SCREENING_SERVICE">
             <intent-filter>
@@ -35,9 +32,7 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name=".PhoneStateReceiver"
-            android:exported="true">
+        <receiver android:name=".PhoneStateReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
