@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:layoutDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_secondary"
+            android:text="بازگشت"
+            android:textAllCaps="false"
+            android:textColor="@color/army"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_header"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="مکالمه"
+                android:textColor="#FFF8EA"
+                android:textSize="27sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/detail_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="#D8E0D7"
+                android:textDirection="locale"
+                android:textSize="12sp"/>
+            <TextView
+                android:id="@+id/detail_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/gold_light"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/detail_policy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/army"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+                <Button android:id="@+id/policy_always" android:layout_width="match_parent" android:layout_height="46dp" android:text="همیشه تحلیل کن" android:textAllCaps="false"/>
+                <Button android:id="@+id/policy_ask" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="4dp" android:text="هر بار بپرس" android:textAllCaps="false"/>
+                <Button android:id="@+id/policy_never" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="4dp" android:text="هرگز تحلیل نکن" android:textAllCaps="false"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_analyze"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_primary"
+            android:text="تحلیل / تحلیل مجدد"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/button_audio"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="7dp"
+            android:background="@drawable/bg_secondary"
+            android:text="پخش فایل ضبط"
+            android:textAllCaps="false"
+            android:textColor="@color/army"/>
+
+        <TextView
+            android:id="@+id/detail_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_card"
+            android:textColor="@color/danger"
+            android:textSize="13sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="خلاصه"
+            android:textColor="@color/army"
+            android:textSize="19sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/detail_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/text"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/button_copy"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_secondary"
+            android:text="کپی خلاصه"
+            android:textAllCaps="false"
+            android:textColor="@color/army"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="نکات مهم"
+            android:textColor="@color/army"
+            android:textSize="19sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/detail_highlights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="5dp"
+            android:textColor="@color/text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="کارهای پیگیری"
+            android:textColor="@color/army"
+            android:textSize="19sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/detail_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="5dp"
+            android:textColor="@color/text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="متن کامل مکالمه"
+            android:textColor="@color/army"
+            android:textSize="19sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/detail_transcript"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="5dp"
+            android:textColor="@color/text"
+            android:textIsSelectable="true"
+            android:textSize="13sp"/>
+    </LinearLayout>
+</ScrollView>

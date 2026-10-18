@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Parsban Call AI</string>
+    <string name="app_name">آواکاو | AvaKav</string>
+    <string-array name="policy_entries">
+        <item>همیشه تحلیل کن</item>
+        <item>هر بار بپرس</item>
+        <item>هرگز تحلیل نکن</item>
+    </string-array>
 </resources>

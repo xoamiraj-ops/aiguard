@@ -5,42 +5,83 @@
     android:background="@color/bg"
     android:fillViewport="true"
     android:layoutDirection="rtl">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="18dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Parsban Call AI"
-            android:textColor="@color/green"
-            android:textSize="28sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="هوش مکالمات CRM پارسبان"
-            android:textColor="@color/muted"
-            android:textSize="14sp"/>
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_header"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="آواکاو"
+                android:textColor="#FFF8EA"
+                android:textSize="34sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="حافظه هوشمند مکالمه‌های تو"
+                android:textColor="#D8E0D7"
+                android:textSize="14sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/today_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/gold_light"
+                    android:textSize="30sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="مکالمه امروز"
+                    android:textColor="#E4E9E1"
+                    android:textSize="13sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:background="@drawable/bg_card"
             android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="وضعیت آواکاو"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/status_screening"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="○ نقش تشخیص تماس فعال نیست"
-                android:textColor="@color/text"
-                android:textSize="15sp"
+                android:layout_marginTop="10dp"
+                android:text="○ راه‌اندازی تماس کامل نشده"
+                android:textSize="14sp"
                 android:textStyle="bold"/>
 
             <TextView
@@ -48,55 +89,99 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="○ پوشه ضبط مکالمات انتخاب نشده"
-                android:textColor="@color/text"
+                android:text="○ پوشه ضبط سامسونگ انتخاب نشده"
                 android:textSize="14sp"/>
 
             <TextView
-                android:id="@+id/status_gateway"
+                android:id="@+id/status_ai"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="○ Gateway تنظیم نشده"
-                android:textColor="@color/text"
+                android:text="○ هوش مصنوعی تنظیم نشده"
                 android:textSize="14sp"/>
         </LinearLayout>
 
         <Button
             android:id="@+id/button_setup"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="14dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/bg_primary"
-            android:text="راه‌اندازی و تنظیمات"
+            android:text="راه‌اندازی آواکاو"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"/>
 
-        <Button
-            android:id="@+id/button_role"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="فعال‌سازی تشخیص تماس"
-            android:textAllCaps="false"/>
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_test"
+            <Button
+                android:id="@+id/button_role"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_secondary"
+                android:text="فعال‌سازی تماس"
+                android:textAllCaps="false"
+                android:textColor="@color/army"
+                android:textStyle="bold"/>
+
+            <Space android:layout_width="8dp" android:layout_height="1dp"/>
+
+            <Button
+                android:id="@+id/button_latest"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_secondary"
+                android:text="تحلیل آخرین ضبط"
+                android:textAllCaps="false"
+                android:textColor="@color/army"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="8dp"
-            android:text="تست اتصال Gateway"
-            android:textAllCaps="false"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="جستجو در نام، خلاصه و متن مکالمه…"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textColorHint="@color/muted"
+                android:textSize="13sp"/>
+
+            <Button
+                android:id="@+id/button_search"
+                android:layout_width="74dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_primary"
+                android:text="جستجو"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="تماس‌های اخیر"
-            android:textColor="@color/green"
-            android:textSize="20sp"
+            android:layout_marginTop="22dp"
+            android:text="مکالمه‌ها"
+            android:textColor="@color/army"
+            android:textSize="21sp"
             android:textStyle="bold"/>
 
         <LinearLayout
@@ -111,8 +196,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="24dp"
-            android:text="هنوز تماسی ثبت نشده"
+            android:padding="28dp"
+            android:text="هنوز مکالمه‌ای ثبت نشده.\nبرای تست می‌توانی «تحلیل آخرین ضبط» را بزن."
             android:textColor="@color/muted"
             android:textSize="14sp"/>
     </LinearLayout>

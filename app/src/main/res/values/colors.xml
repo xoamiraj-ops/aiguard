@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#F4F6F3</color>
+    <color name="bg">#F2F3ED</color>
     <color name="surface">#FFFFFF</color>
-    <color name="green">#123B2A</color>
-    <color name="green2">#285940</color>
-    <color name="gold">#C8A96A</color>
-    <color name="text">#172019</color>
-    <color name="muted">#6F786F</color>
-    <color name="danger">#B64E47</color>
+    <color name="army">#27362B</color>
+    <color name="army2">#405342</color>
+    <color name="army3">#667867</color>
+    <color name="gold">#B8985A</color>
+    <color name="gold_light">#EFE3C7</color>
+    <color name="text">#19211B</color>
+    <color name="muted">#6B746C</color>
+    <color name="stroke">#DDE1D8</color>
+    <color name="success">#3F6B50</color>
+    <color name="danger">#A44D47</color>
 </resources>

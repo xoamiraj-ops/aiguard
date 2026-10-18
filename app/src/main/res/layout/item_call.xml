@@ -4,34 +4,43 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
     android:background="@drawable/bg_card"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
+
     <TextView
         android:id="@+id/call_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/text"
-        android:textSize="16sp"
+        android:textSize="17sp"
         android:textStyle="bold"/>
+
     <TextView
         android:id="@+id/call_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="5dp"
         android:textColor="@color/muted"
         android:textDirection="ltr"
-        android:textSize="13sp"/>
+        android:textSize="12sp"/>
+
     <TextView
         android:id="@+id/call_status"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/green2"
-        android:textSize="13sp"/>
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_badge"
+        android:textColor="@color/army2"
+        android:textSize="12sp"
+        android:textStyle="bold"/>
+
     <TextView
         android:id="@+id/call_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="9dp"
+        android:ellipsize="end"
         android:maxLines="4"
         android:textColor="@color/text"
         android:textSize="13sp"/>
