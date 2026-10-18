@@ -6,6 +6,10 @@ import android.net.Uri;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 public final class RecordingScanner {
@@ -22,12 +26,19 @@ public final class RecordingScanner {
     }
 
     public static Uri findNewest(Context context) {
+        List<RecordingInfo> items = recent(context, 1);
+        return items.isEmpty() ? null : items.get(0).uri;
+    }
+
+    public static List<RecordingInfo> recent(Context context, int limit) {
         DocumentFile root = root(context);
-        if (root == null) return null;
-        Newest newest = new Newest();
+        if (root == null) return Collections.emptyList();
+        List<RecordingInfo> out = new ArrayList<>();
         int[] count = new int[]{0};
-        scanNewest(root, newest, count, 0);
-        return newest.uri;
+        collectRecent(context, root, out, count, 0);
+        out.sort((a, b) -> Long.compare(b.modified, a.modified));
+        if (out.size() > limit) return new ArrayList<>(out.subList(0, limit));
+        return out;
     }
 
     private static DocumentFile root(Context context) {
@@ -35,6 +46,30 @@ public final class RecordingScanner {
         if (rawTree == null || rawTree.isEmpty()) return null;
         DocumentFile root = DocumentFile.fromTreeUri(context, Uri.parse(rawTree));
         return root != null && root.exists() ? root : null;
+    }
+
+    private static void collectRecent(Context context, DocumentFile node, List<RecordingInfo> out, int[] count, int depth) {
+        if (depth > 5 || count[0] > 2000) return;
+        DocumentFile[] children;
+        try { children = node.listFiles(); } catch (Exception e) { return; }
+        long cutoff = System.currentTimeMillis() - 14L * 24L * 60L * 60L * 1000L;
+
+        for (DocumentFile file : children) {
+            if (count[0]++ > 2000) return;
+            if (file.isDirectory()) {
+                collectRecent(context, file, out, count, depth + 1);
+                continue;
+            }
+            if (!isAudio(file.getName(), file.getType())) continue;
+            long modified = file.lastModified();
+            if (modified > 0L && modified < cutoff) continue;
+            out.add(new RecordingInfo(
+                    file.getUri(),
+                    file.getName() == null ? "" : file.getName(),
+                    modified > 0L ? modified : System.currentTimeMillis(),
+                    duration(context, file.getUri())
+            ));
+        }
     }
 
     private static void scanForCall(
@@ -96,26 +131,6 @@ public final class RecordingScanner {
         }
     }
 
-    private static void scanNewest(DocumentFile node, Newest newest, int[] count, int depth) {
-        if (depth > 5 || count[0] > 1500) return;
-        DocumentFile[] children;
-        try { children = node.listFiles(); } catch (Exception e) { return; }
-
-        for (DocumentFile file : children) {
-            if (count[0]++ > 1500) return;
-            if (file.isDirectory()) {
-                scanNewest(file, newest, count, depth + 1);
-                continue;
-            }
-            if (!isAudio(file.getName(), file.getType())) continue;
-            long modified = file.lastModified();
-            if (newest.uri == null || modified > newest.modified) {
-                newest.modified = modified;
-                newest.uri = file.getUri();
-            }
-        }
-    }
-
     private static boolean isAudio(String name, String mime) {
         if (mime != null && mime.toLowerCase(Locale.US).startsWith("audio/")) return true;
         String n = name == null ? "" : name.toLowerCase(Locale.US);
@@ -142,8 +157,17 @@ public final class RecordingScanner {
         double score = -1.0;
     }
 
-    private static final class Newest {
-        Uri uri;
-        long modified = Long.MIN_VALUE;
+    public static final class RecordingInfo {
+        public final Uri uri;
+        public final String name;
+        public final long modified;
+        public final long durationMs;
+
+        RecordingInfo(Uri uri, String name, long modified, long durationMs) {
+            this.uri = uri;
+            this.name = name;
+            this.modified = modified;
+            this.durationMs = durationMs;
+        }
     }
 }
