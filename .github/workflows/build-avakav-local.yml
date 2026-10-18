@@ -37,6 +37,10 @@ jobs:
           sed -i 's/listOf("arm64-v8a", "x86_64")/listOf("arm64-v8a")/' third_party/llama.cpp/examples/llama.android/lib/build.gradle.kts
           sed -i 's/params.language = "en";/params.language = "fa";/' third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/jni.c
 
+          # Avoid duplicate libggml-*.so with llama.cpp: embed Whisper's GGML statically.
+          sed -i '/project(whisper.cpp)/a set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)\nset(GGML_STATIC ON CACHE BOOL "" FORCE)' \
+            third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/CMakeLists.txt
+
       - name: Install Android toolchain
         shell: bash
         run: |
