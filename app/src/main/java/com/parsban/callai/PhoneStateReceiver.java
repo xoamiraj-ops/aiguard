@@ -22,7 +22,13 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         AppDb db = new AppDb(context);
         long id = AppPrefs.activeSession(context);
         CallSession s = id > 0 ? db.get(id) : db.latestOpen();
-        if (s == null) return;
+
+        if (s == null) {
+            if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
+                RecordingInboxWorker.enqueueSoon(context, 12);
+            }
+            return;
+        }
 
         long now = System.currentTimeMillis();
 
@@ -41,6 +47,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         if (s.connectedAt <= 0L) {
             s.status = "Missed";
             db.update(s);
+            RecordingInboxWorker.enqueueSoon(context, 12);
             return;
         }
 
@@ -53,5 +60,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                 .setInitialDelay(10, TimeUnit.SECONDS)
                 .build();
         WorkManager.getInstance(context).enqueue(request);
+
+        RecordingInboxWorker.enqueueSoon(context, 18);
     }
 }
