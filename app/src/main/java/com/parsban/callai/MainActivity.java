@@ -158,12 +158,11 @@ public class MainActivity extends Activity {
                 : "● پوشه ضبط سامسونگ متصل است");
         folderStatus.setTextColor(Color.parseColor(tree.isEmpty() ? "#A44D47" : "#3F6B50"));
 
-        boolean key = !SecretStore.openAiKey(this).isEmpty();
-        boolean consent = AppPrefs.cloudConsent(this);
-        aiStatus.setText(key && consent
-                ? "● هوش مصنوعی آماده"
-                : "○ کلید API یا رضایت ابری تنظیم نشده");
-        aiStatus.setTextColor(Color.parseColor(key && consent ? "#3F6B50" : "#A44D47"));
+        boolean localReady = LocalModels.ready(this);
+        aiStatus.setText(localReady
+                ? "● هوش مصنوعی محلی آماده • بدون اینترنت"
+                : "○ مدل‌های محلی هنوز دانلود نشده‌اند");
+        aiStatus.setTextColor(Color.parseColor(localReady ? "#3F6B50" : "#A44D47"));
 
         AppDb db = new AppDb(this);
         todayCount.setText(Integer.toString(db.countToday()));
@@ -216,10 +215,13 @@ public class MainActivity extends Activity {
             case "AwaitingApproval": return "منتظر تأیید برای تحلیل";
             case "Skipped": return "طبق تنظیم مخاطب تحلیل نشد";
             case "QueuedForAI": return "در صف تحلیل";
-            case "ProcessingAI": return "در حال تبدیل صدا و تحلیل";
-            case "RetryingAI": return "تلاش مجدد برای تحلیل";
-            case "NeedsConsent": return "اجازه پردازش ابری لازم است";
+            case "ProcessingAI":
+            case "ProcessingLocal": return "در حال پردازش محلی روی گوشی";
+            case "RetryingAI":
+            case "RetryingLocal": return "تلاش مجدد برای پردازش محلی";
+            case "NeedsConsent": return "اجازه پردازش لازم است";
             case "NeedsApiKey": return "کلید API لازم است";
+            case "NeedsLocalModels": return "مدل‌های محلی باید دانلود شوند";
             case "Completed": return "تحلیل آماده است";
             case "Failed": return "تحلیل ناموفق";
             default: return status;

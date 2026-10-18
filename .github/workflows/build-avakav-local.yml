@@ -1,0 +1,83 @@
+name: Build AvaKav Local
+
+on:
+  push:
+    branches:
+      - avakav-local-0.2
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout AvaKav
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Fetch pinned local AI engines
+        shell: bash
+        run: |
+          mkdir -p third_party
+          git clone --filter=blob:none https://github.com/ggml-org/whisper.cpp.git third_party/whisper.cpp
+          git -C third_party/whisper.cpp checkout 0c7be696371069e0baa2515ed7aa08d5a5473aa6
+          git clone --filter=blob:none https://github.com/ggml-org/llama.cpp.git third_party/llama.cpp
+          git -C third_party/llama.cpp checkout ff5a23376725e5a889fa0bfb987b7541dc304da0
+
+          sed -i "s/abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'/abiFilters 'arm64-v8a'/" third_party/whisper.cpp/examples/whisper.android/lib/build.gradle
+          sed -i 's/listOf("arm64-v8a", "x86_64")/listOf("arm64-v8a")/' third_party/llama.cpp/examples/llama.android/lib/build.gradle.kts
+          sed -i 's/params.language = "en";/params.language = "fa";/' third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/jni.c
+
+      - name: Install Android toolchain
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0" "ndk;25.2.9519653" "ndk;29.0.13113456" "cmake;3.31.6"
+
+      - name: Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Lint release
+        run: gradle --no-daemon :app:lintRelease
+
+      - name: Build unsigned release APK
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Package APK
+        run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.2.0-unsigned.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AvaKav-Local-0.2.0-UNSIGNED
+          path: AvaKav-Local-0.2.0-unsigned.apk
+          if-no-files-found: error
+
+      - name: Package signing tools
+        shell: bash
+        run: |
+          mkdir -p android-signing-tools/lib
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" android-signing-tools/
+          cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib/apksigner.jar" android-signing-tools/lib/
+          if [ -d "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib64" ]; then cp -R "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib64" android-signing-tools/; fi
+
+      - name: Upload signing tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-36-Signing-Tools-AvaKav-Local
+          path: android-signing-tools/
+          if-no-files-found: error
+          retention-days: 1

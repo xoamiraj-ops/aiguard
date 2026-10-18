@@ -1,195 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:layoutDirection="rtl">
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg" android:layoutDirection="rtl">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_header"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="راه‌اندازی آواکاو"
-                android:textColor="#FFF8EA"
-                android:textSize="27sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_header" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="راه‌اندازی آواکاو Local" android:textColor="#FFF8EA"
+                android:textSize="27sp" android:textStyle="bold"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="نسخه شخصی آزمایشی • مخصوص تست روی گوشی تو"
-                android:textColor="#D8E0D7"
-                android:textSize="13sp"/>
+                android:text="کاملاً آفلاین • بدون API • بدون سرور • مخصوص Samsung S23"
+                android:textColor="#D8E0D7" android:textSize="13sp"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="۱. پوشه ضبط Samsung"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <Button
-                android:id="@+id/button_folder"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_secondary"
-                android:text="انتخاب پوشه ضبط مکالمات"
-                android:textAllCaps="false"
-                android:textColor="@color/army"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/folder_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="پوشه‌ای انتخاب نشده"
-                android:textColor="@color/muted"
-                android:textSize="12sp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:background="@drawable/bg_card" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="۱. پوشه ضبط Samsung" android:textColor="@color/text" android:textSize="16sp" android:textStyle="bold"/>
+            <Button android:id="@+id/button_folder" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginTop="10dp" android:background="@drawable/bg_secondary"
+                android:text="انتخاب پوشه ضبط مکالمات" android:textAllCaps="false" android:textColor="@color/army" android:textStyle="bold"/>
+            <TextView android:id="@+id/folder_text" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="پوشه‌ای انتخاب نشده" android:textColor="@color/muted" android:textSize="12sp"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="۲. مجوزهای تماس و مخاطبین"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <Button
-                android:id="@+id/button_permissions"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_secondary"
-                android:text="اعطای مجوزهای لازم"
-                android:textAllCaps="false"
-                android:textColor="@color/army"
-                android:textStyle="bold"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="۲. مجوزهای تماس و مخاطبین" android:textColor="@color/text" android:textSize="16sp" android:textStyle="bold"/>
+            <Button android:id="@+id/button_permissions" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginTop="10dp" android:background="@drawable/bg_secondary"
+                android:text="اعطای مجوزهای لازم" android:textAllCaps="false" android:textColor="@color/army" android:textStyle="bold"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="۳. هوش مصنوعی"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
-                android:text="OpenAI API Key شخصی"
-                android:textColor="@color/muted"
-                android:textSize="12sp"/>
-
-            <EditText
-                android:id="@+id/input_api_key"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:hint="sk-..."
-                android:inputType="textPassword"
-                android:textDirection="ltr"
-                android:singleLine="true"/>
-
-            <CheckBox
-                android:id="@+id/cloud_consent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="اجازه می‌دهم فایل ضبط برای متن‌نگاری و تحلیل، مستقیم از گوشی به سرویس OpenAI ارسال شود."
-                android:textColor="@color/text"
-                android:textSize="13sp"/>
-
-            <Button
-                android:id="@+id/button_test_ai"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="9dp"
-                android:background="@drawable/bg_secondary"
-                android:text="تست اتصال OpenAI"
-                android:textAllCaps="false"
-                android:textColor="@color/army"
-                android:textStyle="bold"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="۳. هوش مصنوعی کاملاً محلی" android:textColor="@color/text" android:textSize="16sp" android:textStyle="bold"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:text="یک‌بار حدود 680MB مدل رایگان دانلود می‌شود. بعد از آن برای تحلیل هیچ اینترنت، API Key یا اعتبار پولی لازم نیست."
+                android:textColor="@color/muted" android:textSize="13sp" android:lineSpacingExtra="3dp"/>
+            <TextView android:id="@+id/model_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:text="مدل‌ها هنوز دانلود نشده‌اند"
+                android:textColor="@color/army" android:textStyle="bold" android:textSize="13sp"/>
+            <TextView android:id="@+id/whisper_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="○ Whisper Small" android:textColor="@color/text" android:textSize="13sp"/>
+            <TextView android:id="@+id/qwen_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="5dp" android:text="○ Qwen2.5" android:textColor="@color/text" android:textSize="13sp"/>
+            <Button android:id="@+id/button_download_models" android:layout_width="match_parent" android:layout_height="54dp"
+                android:layout_marginTop="12dp" android:background="@drawable/bg_secondary"
+                android:text="دانلود مدل‌های رایگان محلی" android:textAllCaps="false" android:textColor="@color/army" android:textStyle="bold"/>
+            <Button android:id="@+id/button_delete_models" android:layout_width="match_parent" android:layout_height="46dp"
+                android:layout_marginTop="8dp" android:background="@drawable/bg_card"
+                android:text="حذف مدل‌های دانلودشده" android:textAllCaps="false" android:textColor="@color/muted"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="۴. رفتار پیش‌فرض مکالمه‌ها"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <Spinner
-                android:id="@+id/default_policy"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="8dp"
-                android:entries="@array/policy_entries"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="۴. رفتار پیش‌فرض مکالمه‌ها" android:textColor="@color/text" android:textSize="16sp" android:textStyle="bold"/>
+            <Spinner android:id="@+id/default_policy" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginTop="8dp" android:entries="@array/policy_entries"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/button_save"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_primary"
-            android:text="ذخیره تنظیمات"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:lineSpacingExtra="4dp"
-            android:text="حریم خصوصی نسخه شخصی: آواکاو فایل ضبط اصلی Samsung را حذف یا تغییر نمی‌دهد. کلید API با Android Keystore نگه‌داری می‌شود. مسئولیت رعایت قوانین مربوط به ضبط مکالمه در محل استفاده بر عهده کاربر است."
-            android:textColor="@color/muted"
-            android:textSize="12sp"/>
+        <Button android:id="@+id/button_save" android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginTop="14dp" android:background="@drawable/bg_primary"
+            android:text="ذخیره تنظیمات" android:textAllCaps="false" android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="15dp" android:lineSpacingExtra="4dp"
+            android:text="حریم خصوصی: پس از دانلود اولیه مدل‌ها، فایل ضبط Samsung، متن مکالمه و تحلیل روی خود گوشی پردازش و نگه‌داری می‌شوند و برای تحلیل به هیچ سرویس ابری ارسال نمی‌شوند. مسئولیت رعایت قوانین ضبط مکالمه در محل استفاده بر عهده کاربر است."
+            android:textColor="@color/muted" android:textSize="12sp"/>
     </LinearLayout>
 </ScrollView>

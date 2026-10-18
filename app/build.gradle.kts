@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -8,20 +9,18 @@ android {
 
     defaultConfig {
         applicationId = "com.avakav.personal"
-        minSdk = 29
+        minSdk = 33
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0-local"
+        ndk { abiFilters += listOf("arm64-v8a") }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             isDebuggable = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
@@ -29,10 +28,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    kotlin { jvmToolchain(17) }
 }
 
 dependencies {
+    implementation(project(":whisperlib"))
+    implementation(project(":llamalib"))
     implementation("androidx.work:work-runtime:2.10.5")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }

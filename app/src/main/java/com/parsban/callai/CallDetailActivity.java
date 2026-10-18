@@ -115,7 +115,7 @@ public class CallDetailActivity extends Activity {
         session.error = "";
         new AppDb(this).update(session);
         ProcessCallWorker.enqueue(this, session.id);
-        Toast.makeText(this, "تحلیل شروع شد", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "پردازش محلی شروع شد", Toast.LENGTH_SHORT).show();
         render();
     }
 
