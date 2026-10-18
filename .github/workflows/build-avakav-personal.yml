@@ -60,6 +60,9 @@ jobs:
           cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner" android-signing-tools/
           cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/zipalign" android-signing-tools/
           cp "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib/apksigner.jar" android-signing-tools/lib/
+          if [ -d "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib64" ]; then
+            cp -R "$ANDROID_SDK_ROOT/build-tools/36.0.0/lib64" android-signing-tools/
+          fi
 
       - name: Upload signing tools
         uses: actions/upload-artifact@v4
