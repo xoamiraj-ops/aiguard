@@ -7,10 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public final class AppDb extends SQLiteOpenHelper {
-    private static final String DB = "parsban_call_ai.db";
+    private static final String DB = "avakav.db";
     private static final int VERSION = 1;
 
     public AppDb(Context context) {
@@ -22,18 +23,18 @@ public final class AppDb extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE calls (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "phone TEXT,direction TEXT,created_at INTEGER,connected_at INTEGER,ended_at INTEGER," +
-                "status TEXT,customer_name TEXT,crm_type TEXT,crm_id TEXT,recording_uri TEXT," +
-                "summary TEXT,transcript TEXT,crm_call_id TEXT,error TEXT)");
+                "status TEXT,contact_name TEXT,recording_uri TEXT,summary TEXT,highlights TEXT," +
+                "action_items TEXT,transcript TEXT,ai_model TEXT,error TEXT)");
         db.execSQL("CREATE INDEX idx_calls_status ON calls(status)");
         db.execSQL("CREATE INDEX idx_calls_created ON calls(created_at)");
+        db.execSQL("CREATE INDEX idx_calls_phone ON calls(phone)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
     public synchronized long insert(CallSession s) {
-        ContentValues v = values(s);
-        return getWritableDatabase().insertOrThrow("calls", null, v);
+        return getWritableDatabase().insertOrThrow("calls", null, values(s));
     }
 
     public synchronized void update(CallSession s) {
@@ -51,16 +52,44 @@ public final class AppDb extends SQLiteOpenHelper {
     public synchronized CallSession latestOpen() {
         try (Cursor c = getReadableDatabase().query(
                 "calls", null,
-                "status IN ('Ringing','Connected')",
+                "status IN ('Ringing','Dialing','Connected')",
                 null, null, null, "created_at DESC", "1")) {
             return c.moveToFirst() ? read(c) : null;
         }
     }
 
     public synchronized List<CallSession> recent(int limit) {
+        return query(null, null, limit);
+    }
+
+    public synchronized List<CallSession> search(String query, int limit) {
+        String q = query == null ? "" : query.trim();
+        if (q.isEmpty()) return recent(limit);
+        String like = "%" + q + "%";
+        return query(
+                "contact_name LIKE ? OR phone LIKE ? OR summary LIKE ? OR transcript LIKE ? OR highlights LIKE ? OR action_items LIKE ?",
+                new String[]{like, like, like, like, like, like},
+                limit
+        );
+    }
+
+    public synchronized int countToday() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        try (Cursor c = getReadableDatabase().rawQuery(
+                "SELECT COUNT(*) FROM calls WHERE created_at>=?",
+                new String[]{Long.toString(cal.getTimeInMillis())})) {
+            return c.moveToFirst() ? c.getInt(0) : 0;
+        }
+    }
+
+    private List<CallSession> query(String selection, String[] args, int limit) {
         List<CallSession> out = new ArrayList<>();
         try (Cursor c = getReadableDatabase().query(
-                "calls", null, null, null, null, null,
+                "calls", null, selection, args, null, null,
                 "created_at DESC", Integer.toString(limit))) {
             while (c.moveToNext()) out.add(read(c));
         }
@@ -75,13 +104,13 @@ public final class AppDb extends SQLiteOpenHelper {
         v.put("connected_at", s.connectedAt);
         v.put("ended_at", s.endedAt);
         v.put("status", s.status);
-        v.put("customer_name", s.customerName);
-        v.put("crm_type", s.crmType);
-        v.put("crm_id", s.crmId);
+        v.put("contact_name", s.contactName);
         v.put("recording_uri", s.recordingUri);
         v.put("summary", s.summary);
+        v.put("highlights", s.highlights);
+        v.put("action_items", s.actionItems);
         v.put("transcript", s.transcript);
-        v.put("crm_call_id", s.crmCallId);
+        v.put("ai_model", s.aiModel);
         v.put("error", s.error);
         return v;
     }
@@ -95,13 +124,13 @@ public final class AppDb extends SQLiteOpenHelper {
         s.connectedAt = c.getLong(c.getColumnIndexOrThrow("connected_at"));
         s.endedAt = c.getLong(c.getColumnIndexOrThrow("ended_at"));
         s.status = c.getString(c.getColumnIndexOrThrow("status"));
-        s.customerName = c.getString(c.getColumnIndexOrThrow("customer_name"));
-        s.crmType = c.getString(c.getColumnIndexOrThrow("crm_type"));
-        s.crmId = c.getString(c.getColumnIndexOrThrow("crm_id"));
+        s.contactName = c.getString(c.getColumnIndexOrThrow("contact_name"));
         s.recordingUri = c.getString(c.getColumnIndexOrThrow("recording_uri"));
         s.summary = c.getString(c.getColumnIndexOrThrow("summary"));
+        s.highlights = c.getString(c.getColumnIndexOrThrow("highlights"));
+        s.actionItems = c.getString(c.getColumnIndexOrThrow("action_items"));
         s.transcript = c.getString(c.getColumnIndexOrThrow("transcript"));
-        s.crmCallId = c.getString(c.getColumnIndexOrThrow("crm_call_id"));
+        s.aiModel = c.getString(c.getColumnIndexOrThrow("ai_model"));
         s.error = c.getString(c.getColumnIndexOrThrow("error"));
         return s;
     }

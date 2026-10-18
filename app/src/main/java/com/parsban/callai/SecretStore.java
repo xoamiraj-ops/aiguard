@@ -1,7 +1,6 @@
 package com.parsban.callai;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -15,21 +14,21 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
 public final class SecretStore {
-    private static final String KEY_ALIAS = "parsban_call_ai_key";
-    private static final String PREFS = "parsban_call_ai_secrets";
-    private static final String TOKEN = "device_token";
+    private static final String KEY_ALIAS = "avakav_personal_key";
+    private static final String PREFS = "avakav_personal_secrets";
+    private static final String OPENAI_KEY = "openai_api_key";
 
     private SecretStore() {}
 
-    public static void setDeviceToken(Context context, String value) throws Exception {
+    public static void setOpenAiKey(Context context, String value) throws Exception {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putString(TOKEN, encrypt(value == null ? "" : value)).apply();
+                .edit().putString(OPENAI_KEY, encrypt(value == null ? "" : value.trim())).apply();
     }
 
-    public static String deviceToken(Context context) {
+    public static String openAiKey(Context context) {
         try {
             String raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                    .getString(TOKEN, "");
+                    .getString(OPENAI_KEY, "");
             if (raw == null || raw.isEmpty()) return "";
             return decrypt(raw);
         } catch (Exception e) {

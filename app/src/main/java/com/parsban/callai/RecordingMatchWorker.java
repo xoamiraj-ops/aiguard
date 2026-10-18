@@ -4,16 +4,11 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
 import androidx.work.Data;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-
-import java.util.concurrent.TimeUnit;
 
 public class RecordingMatchWorker extends Worker {
     public RecordingMatchWorker(@NonNull Context c, @NonNull WorkerParameters p) {
@@ -26,44 +21,48 @@ public class RecordingMatchWorker extends Worker {
         long id = getInputData().getLong("sessionId", -1L);
         if (id <= 0) return Result.failure();
 
-        AppDb db = new AppDb(getApplicationContext());
+        Context c = getApplicationContext();
+        AppDb db = new AppDb(c);
         CallSession s = db.get(id);
         if (s == null) return Result.failure();
 
-        if (AppPrefs.recordingTree(getApplicationContext()).isEmpty()) {
+        if (AppPrefs.recordingTree(c).isEmpty()) {
             s.status = "NeedsRecordingFolder";
-            s.error = "پوشه ضبط سامسونگ انتخاب نشده";
+            s.error = "پوشه ضبط مکالمات سامسونگ انتخاب نشده";
             db.update(s);
-            NotificationHelper.showError(getApplicationContext(), s.id, s.error);
+            NotificationHelper.showError(c, s.id, s.error);
             return Result.failure();
         }
 
-        Uri recording = RecordingScanner.findBest(getApplicationContext(), s);
+        Uri recording = RecordingScanner.findBest(c, s);
         if (recording == null) {
             if (getRunAttemptCount() < 4) return Result.retry();
             s.status = "RecordingNotFound";
             s.error = "فایل ضبط این تماس پیدا نشد";
             db.update(s);
-            NotificationHelper.showError(getApplicationContext(), s.id, s.error);
+            NotificationHelper.showError(c, s.id, s.error);
             return Result.failure();
         }
 
         s.recordingUri = recording.toString();
-        s.status = "QueuedForAI";
         s.error = "";
+
+        String policy = PolicyStore.get(c, s.phone);
+        if (AppPrefs.POLICY_NEVER.equals(policy)) {
+            s.status = "Skipped";
+            db.update(s);
+            return Result.success();
+        }
+        if (AppPrefs.POLICY_ASK.equals(policy)) {
+            s.status = "AwaitingApproval";
+            db.update(s);
+            NotificationHelper.showApproval(c, s.id, s.contactName);
+            return Result.success();
+        }
+
+        s.status = "QueuedForAI";
         db.update(s);
-
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        Data data = new Data.Builder().putLong("sessionId", s.id).build();
-        OneTimeWorkRequest process = new OneTimeWorkRequest.Builder(ProcessCallWorker.class)
-                .setInputData(data)
-                .setConstraints(constraints)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-                .build();
-        WorkManager.getInstance(getApplicationContext()).enqueue(process);
+        ProcessCallWorker.enqueue(c, s.id);
         return Result.success();
     }
 }

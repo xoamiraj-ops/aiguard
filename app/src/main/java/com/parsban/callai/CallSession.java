@@ -8,13 +8,13 @@ public final class CallSession {
     public long connectedAt;
     public long endedAt;
     public String status = "Ringing";
-    public String customerName = "";
-    public String crmType = "";
-    public String crmId = "";
+    public String contactName = "";
     public String recordingUri = "";
     public String summary = "";
+    public String highlights = "[]";
+    public String actionItems = "[]";
     public String transcript = "";
-    public String crmCallId = "";
+    public String aiModel = "";
     public String error = "";
 
     public long durationMs() {

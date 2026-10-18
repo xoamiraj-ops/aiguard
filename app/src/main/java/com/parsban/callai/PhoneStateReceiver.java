@@ -50,7 +50,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         Data data = new Data.Builder().putLong("sessionId", s.id).build();
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(RecordingMatchWorker.class)
                 .setInputData(data)
-                .setInitialDelay(8, TimeUnit.SECONDS)
+                .setInitialDelay(10, TimeUnit.SECONDS)
                 .build();
         WorkManager.getInstance(context).enqueue(request);
     }
