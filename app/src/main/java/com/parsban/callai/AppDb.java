@@ -28,6 +28,7 @@ public final class AppDb extends SQLiteOpenHelper {
         db.execSQL("CREATE INDEX idx_calls_status ON calls(status)");
         db.execSQL("CREATE INDEX idx_calls_created ON calls(created_at)");
         db.execSQL("CREATE INDEX idx_calls_phone ON calls(phone)");
+        db.execSQL("CREATE UNIQUE INDEX idx_calls_recording_uri ON calls(recording_uri) WHERE recording_uri IS NOT NULL AND recording_uri <> ''");
     }
 
     @Override
@@ -45,6 +46,31 @@ public final class AppDb extends SQLiteOpenHelper {
         try (Cursor c = getReadableDatabase().query(
                 "calls", null, "id=?", new String[]{Long.toString(id)},
                 null, null, null, "1")) {
+            return c.moveToFirst() ? read(c) : null;
+        }
+    }
+
+    public synchronized boolean hasRecordingUri(String uri) {
+        if (uri == null || uri.isEmpty()) return false;
+        try (Cursor c = getReadableDatabase().rawQuery(
+                "SELECT 1 FROM calls WHERE recording_uri=? LIMIT 1",
+                new String[]{uri})) {
+            return c.moveToFirst();
+        }
+    }
+
+    public synchronized CallSession findWaitingNear(long whenMs) {
+        long window = 15L * 60L * 1000L;
+        long from = whenMs - window;
+        long to = whenMs + window;
+        try (Cursor c = getReadableDatabase().query(
+                "calls", null,
+                "(recording_uri IS NULL OR recording_uri='') AND status IN ('WaitingRecording','RecordingNotFound','Connected') " +
+                        "AND COALESCE(NULLIF(ended_at,0),created_at) BETWEEN ? AND ?",
+                new String[]{Long.toString(from), Long.toString(to)},
+                null, null,
+                "ABS(COALESCE(NULLIF(ended_at,0),created_at)-" + whenMs + ") ASC",
+                "1")) {
             return c.moveToFirst() ? read(c) : null;
         }
     }
