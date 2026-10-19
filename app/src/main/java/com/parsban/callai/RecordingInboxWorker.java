@@ -99,13 +99,15 @@ public class RecordingInboxWorker extends Worker {
     private static String labelFromName(String name, String phone) {
         String n = name == null ? "" : name;
         n = n.replaceFirst("(?i)\\.(m4a|amr|3gp|mp3|wav|ogg|aac|mp4)$", "");
+        n = n.replaceFirst("(?i)^call\\s+", "");
+        n = n.replaceFirst("_[0-9]{6}_[0-9]{6}$", "");
         if (phone != null && !phone.isEmpty()) {
             String last = PhoneUtil.lastDigits(phone, 7);
             if (!last.isEmpty()) n = n.replace(last, "");
         }
         n = n.replaceAll("[_-]+", " ").replaceAll("\\s+", " ").trim();
         if (n.length() > 44) n = n.substring(0, 44).trim();
-        if (n.isEmpty() || n.matches(".*\\d{6,}.*")) return "ضبط سامسونگ";
+        if (n.isEmpty()) return "ضبط سامسونگ";
         return n;
     }
 }
