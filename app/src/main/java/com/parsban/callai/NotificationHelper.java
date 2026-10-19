@@ -16,6 +16,16 @@ public final class NotificationHelper {
 
     private NotificationHelper() {}
 
+    public static Notification processing(Context c, long sessionId) {
+        ensure(c);
+        return new Notification.Builder(c, PROCESSING)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle("آواکاو؛ تحلیل محلی مکالمه")
+                .setContentText("برای دیدن مرحله پردازش لمس کنید")
+                .setContentIntent(open(c, sessionId, (int) (12000 + sessionId)))
+                .setOngoing(true).setOnlyAlertOnce(true).build();
+    }
+
     public static void showIncoming(Context c, long sessionId, String phone, String contact) {
         if (!allowed(c)) return;
         ensure(c);
@@ -104,3 +114,4 @@ public final class NotificationHelper {
         }
     }
 }
+

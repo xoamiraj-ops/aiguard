@@ -215,6 +215,10 @@ public class MainActivity extends Activity {
             case "AwaitingApproval": return "منتظر تأیید برای تحلیل";
             case "Skipped": return "طبق تنظیم مخاطب تحلیل نشد";
             case "QueuedForAI": return "در صف تحلیل";
+            case "DecodingAudio": return "در حال آماده‌سازی فایل صوتی";
+            case "LoadingWhisper": return "در حال بارگذاری مدل تبدیل صدا به متن";
+            case "TranscribingLocal": return "در حال تبدیل صدا به متن";
+            case "SummarizingLocal": return "متن آماده است؛ در حال خلاصه‌سازی";
             case "ProcessingAI":
             case "ProcessingLocal": return "در حال پردازش محلی روی گوشی";
             case "RetryingAI":
@@ -228,3 +232,4 @@ public class MainActivity extends Activity {
         }
     }
 }
+

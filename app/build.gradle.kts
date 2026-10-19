@@ -11,8 +11,8 @@ android {
         applicationId = "com.avakav.personal"
         minSdk = 33
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.2.1-local"
+        versionCode = 4
+        versionName = "0.3.0-local"
         ndk { abiFilters += listOf("arm64-v8a") }
     }
 
@@ -39,3 +39,4 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }
+

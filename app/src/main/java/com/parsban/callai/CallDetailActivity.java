@@ -6,6 +6,8 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +19,14 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CallDetailActivity extends Activity {
+    private final Handler refreshHandler = new Handler(Looper.getMainLooper());
+    private final Runnable refresh = new Runnable() {
+        @Override public void run() {
+            if (isFinishing() || isDestroyed()) return;
+            render();
+            refreshHandler.postDelayed(this, 1500);
+        }
+    };
     private long sessionId;
     private CallSession session;
 
@@ -66,7 +76,13 @@ public class CallDetailActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        render();
+        refreshHandler.removeCallbacks(refresh);
+        refreshHandler.post(refresh);
+    }
+
+    @Override protected void onPause() {
+        refreshHandler.removeCallbacks(refresh);
+        super.onPause();
     }
 
     private void render() {
@@ -168,3 +184,4 @@ public class CallDetailActivity extends Activity {
         }
     }
 }
+

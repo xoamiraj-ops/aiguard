@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import java.io.File
+import java.io.RandomAccessFile
 
 object LocalModels {
     const val WHISPER_FILE = "ggml-small-q5_1.bin"
@@ -19,8 +20,8 @@ object LocalModels {
 
     @JvmStatic fun whisperFile(context: Context) = File(modelDir(context), WHISPER_FILE)
     @JvmStatic fun qwenFile(context: Context) = File(modelDir(context), QWEN_FILE)
-    @JvmStatic fun isWhisperReady(context: Context) = whisperFile(context).let { it.isFile && it.length() >= MIN_WHISPER_BYTES }
-    @JvmStatic fun isQwenReady(context: Context) = qwenFile(context).let { it.isFile && it.length() >= MIN_QWEN_BYTES }
+    @JvmStatic fun isWhisperReady(context: Context) = validModel(whisperFile(context), MIN_WHISPER_BYTES, 0x67676d6c)
+    @JvmStatic fun isQwenReady(context: Context) = validModel(qwenFile(context), MIN_QWEN_BYTES, 0x46554747)
     @JvmStatic fun ready(context: Context) = isWhisperReady(context) && isQwenReady(context)
 
     @JvmStatic
@@ -95,6 +96,12 @@ object LocalModels {
         return ModelStatus(w, q, progress, text)
     }
 
+    private fun validModel(file: File, minimum: Long, magic: Int): Boolean = runCatching {
+        file.isFile && file.length() >= minimum && RandomAccessFile(file, "r").use {
+            Integer.reverseBytes(it.readInt()) == magic
+        }
+    }.getOrDefault(false)
+
     private fun modelDir(context: Context): File {
         val root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: File(context.filesDir, "downloads")
         return File(root, "models")
@@ -125,3 +132,4 @@ object LocalModels {
     }
     private data class QueryState(val name: String, val status: Int, val downloaded: Long, val total: Long)
 }
+

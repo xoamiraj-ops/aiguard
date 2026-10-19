@@ -41,7 +41,9 @@ object LocalLlmEngine {
             val prompt = "طرف مکالمه: $who\nزمان ثبت: ${session.createdAt}\nمتن مکالمه:\n$limited"
 
             val output = StringBuilder()
-            engine.sendUserPrompt(prompt, 700).collect { output.append(it) }
+            withTimeout(180_000) {
+                engine.sendUserPrompt(prompt, 450).collect { output.append(it) }
+            }
             parseOrFallback(output.toString(), transcript)
         } finally {
             try { engine.cleanUp() } catch (_: Exception) {}
@@ -68,7 +70,8 @@ object LocalLlmEngine {
         val highlights = JSONArray(); sentences.take(5).forEach { highlights.put(it) }
         val actionWords = listOf("باید","فردا","قرار","پیگیری","زنگ","تماس","بفرست","ارسال","بخر","خرید","یادم")
         val actions = JSONArray()
-        sentences.filter { s -> actionWords.any { s.contains(it) } }.take(5).forEach { actions.put(it) }
+        // No tasks are inferred from keyword-only matches.
         return LocalAnalysis(summary, highlights.toString(), actions.toString())
     }
 }
+

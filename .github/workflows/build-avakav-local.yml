@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - avakav-local-0.2
+      - avakav-local-0.3
   workflow_dispatch:
 
 jobs:
@@ -40,6 +41,9 @@ jobs:
           sed -i '/project(whisper.cpp)/a set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)\nset(GGML_STATIC ON CACHE BOOL "" FORCE)' \
             third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/CMakeLists.txt
 
+      - name: Patch bounded local inference
+        run: python3 scripts/patch_local_engines.py
+
       - name: Install Android toolchain
         shell: bash
         run: |
@@ -53,19 +57,16 @@ jobs:
           gradle-version: '8.13'
 
       - name: Lint release
-        run: gradle --no-daemon :app:lintRelease
-
-      - name: Build unsigned release APK
-        run: gradle --no-daemon :app:assembleRelease
+        run: gradle --no-daemon :app:lintRelease :app:assembleRelease
 
       - name: Package APK
-        run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.2.0-unsigned.apk
+        run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.0-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AvaKav-Local-0.2.0-UNSIGNED
-          path: AvaKav-Local-0.2.0-unsigned.apk
+          name: AvaKav-Local-0.3.0-UNSIGNED
+          path: AvaKav-Local-0.3.0-unsigned.apk
           if-no-files-found: error
 
       - name: Package signing tools
@@ -84,3 +85,4 @@ jobs:
           path: android-signing-tools/
           if-no-files-found: error
           retention-days: 1
+

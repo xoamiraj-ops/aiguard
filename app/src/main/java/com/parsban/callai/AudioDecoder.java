@@ -6,6 +6,7 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.net.Uri;
+import android.os.SystemClock;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -45,7 +46,11 @@ public final class AudioDecoder {
             int channels = inputFormat.containsKey(MediaFormat.KEY_CHANNEL_COUNT) ? inputFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT) : 1;
             int pcmEncoding = AudioFormat.ENCODING_PCM_16BIT;
 
+            long lastProgress = SystemClock.elapsedRealtime();
             while (!outputDone) {
+                if (Thread.currentThread().isInterrupted()) throw new IOException("تبدیل صوت متوقف شد");
+                if (SystemClock.elapsedRealtime() - lastProgress > 30_000L)
+                    throw new IOException("دیکودر صوت ۳۰ ثانیه خروجی نداد؛ فایل ضبط را دوباره انتخاب کنید");
                 if (!inputDone) {
                     int inIndex = codec.dequeueInputBuffer(10_000);
                     if (inIndex >= 0) {
@@ -56,7 +61,9 @@ public final class AudioDecoder {
                             codec.queueInputBuffer(inIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                             inputDone = true;
                         } else {
-                            codec.queueInputBuffer(inIndex, 0, size, extractor.getSampleTime(), extractor.getSampleFlags());
+                            // Extractor flags and codec flags are different namespaces.
+                            // In particular PARTIAL_FRAME (4) must never become END_OF_STREAM (4).
+                            codec.queueInputBuffer(inIndex, 0, size, extractor.getSampleTime(), 0);
                             extractor.advance();
                         }
                     }
@@ -68,6 +75,7 @@ public final class AudioDecoder {
                     if (out.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) channels = out.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
                     if (out.containsKey(MediaFormat.KEY_PCM_ENCODING)) pcmEncoding = out.getInteger(MediaFormat.KEY_PCM_ENCODING);
                 } else if (outIndex >= 0) {
+                    lastProgress = SystemClock.elapsedRealtime();
                     ByteBuffer out = codec.getOutputBuffer(outIndex);
                     if (out != null && info.size > 0) {
                         ByteBuffer data = out.duplicate().order(ByteOrder.nativeOrder());
@@ -142,3 +150,4 @@ public final class AudioDecoder {
         float[] toArray() { return Arrays.copyOf(data, size); }
     }
 }
+
