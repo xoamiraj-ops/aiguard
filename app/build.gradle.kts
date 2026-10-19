@@ -8,7 +8,9 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.avakav.personal"
+        val preview = providers.gradleProperty("avakavPreview").orNull == "true"
+        applicationId = if (preview) "com.avakav.preview" else "com.avakav.personal"
+        manifestPlaceholders["appLabel"] = if (preview) "آواکاو • تست ۳" else "آواکاو"
         minSdk = 33
         targetSdk = 36
         versionCode = 4

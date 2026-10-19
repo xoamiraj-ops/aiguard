@@ -62,11 +62,18 @@ jobs:
       - name: Package APK
         run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.0-unsigned.apk
 
+      - name: Build separate preview APK
+        run: |
+          gradle --no-daemon :app:assembleRelease -PavakavPreview=true
+          cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.0-Preview-unsigned.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AvaKav-Local-0.3.0-UNSIGNED
-          path: AvaKav-Local-0.3.0-unsigned.apk
+          path: |
+            AvaKav-Local-0.3.0-unsigned.apk
+            AvaKav-Local-0.3.0-Preview-unsigned.apk
           if-no-files-found: error
 
       - name: Package signing tools
