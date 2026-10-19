@@ -110,9 +110,9 @@ public final class RecordingScanner {
             if (!needle.isEmpty() && digitsName.contains(needle)) score += 350;
 
             if (session.contactName != null && !session.contactName.isEmpty() && name != null) {
-                String compactName = session.contactName.replace(" ", "").toLowerCase(Locale.getDefault());
-                String compactFile = name.replace(" ", "").toLowerCase(Locale.getDefault());
-                if (compactName.length() >= 3 && compactFile.contains(compactName)) score += 220;
+                String compactName = normalizeLabel(session.contactName);
+                String compactFile = normalizeLabel(name);
+                if (compactName.length() >= 3 && compactFile.contains(compactName)) score += 320;
             }
 
             long callDuration = session.durationMs();
@@ -129,6 +129,14 @@ public final class RecordingScanner {
                 best.uri = file.getUri();
             }
         }
+    }
+
+    private static String normalizeLabel(String value) {
+        if (value == null) return "";
+        return value.toLowerCase(Locale.getDefault())
+                .replaceFirst("^call\\s+", "")
+                .replaceAll("(?i)\\.(m4a|amr|3gp|mp3|wav|ogg|aac|mp4)$", "")
+                .replaceAll("[^\\p{L}\\p{N}]+", "");
     }
 
     private static boolean isAudio(String name, String mime) {
