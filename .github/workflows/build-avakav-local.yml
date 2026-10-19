@@ -36,9 +36,6 @@ jobs:
           sed -i "s/abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'/abiFilters 'arm64-v8a'/" third_party/whisper.cpp/examples/whisper.android/lib/build.gradle
           sed -i 's/listOf("arm64-v8a", "x86_64")/listOf("arm64-v8a")/' third_party/llama.cpp/examples/llama.android/lib/build.gradle.kts
           sed -i 's/params.language = "en";/params.language = "fa";/' third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/jni.c
-          # Avoid duplicate shared ggml*.so with llama.cpp: statically embed whisper's ggml.
-          sed -i '/project(whisper.cpp)/a set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)' third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/CMakeLists.txt
-
           # Avoid duplicate libggml-*.so with llama.cpp: embed Whisper's GGML statically.
           sed -i '/project(whisper.cpp)/a set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)\nset(GGML_STATIC ON CACHE BOOL "" FORCE)' \
             third_party/whisper.cpp/examples/whisper.android/lib/src/main/jni/whisper/CMakeLists.txt
