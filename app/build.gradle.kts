@@ -11,8 +11,8 @@ android {
         applicationId = "com.avakav.personal"
         minSdk = 33
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0-local"
+        versionCode = 3
+        versionName = "0.2.1-local"
         ndk { abiFilters += listOf("arm64-v8a") }
     }
 

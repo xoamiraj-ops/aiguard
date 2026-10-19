@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -52,17 +51,20 @@ public class RecordingInboxWorker extends Worker {
         if (AppPrefs.recordingTree(c).isEmpty()) return Result.success();
 
         AppDb db = new AppDb(c);
-        List<RecordingScanner.RecordingInfo> recordings = RecordingScanner.recent(c, 30);
+        List<RecordingScanner.RecordingInfo> recordings = RecordingScanner.recent(c, 40);
+
         for (RecordingScanner.RecordingInfo info : recordings) {
             String uri = info.uri.toString();
             if (db.hasRecordingUri(uri)) continue;
 
-            CallSession s = db.findWaitingNear(info.modified);
+            CallSession s = db.findWaitingNear(info.recordedAt);
             if (s == null) {
                 s = new CallSession();
-                s.createdAt = info.modified;
-                s.connectedAt = Math.max(0L, info.modified - info.durationMs);
-                s.endedAt = info.modified;
+                s.createdAt = info.recordedAt;
+                s.connectedAt = Math.max(0L, info.recordedAt);
+                s.endedAt = info.durationMs > 0L
+                        ? info.recordedAt + info.durationMs
+                        : info.recordedAt;
                 s.direction = "Imported";
                 s.status = "QueuedForAI";
                 s.phone = phoneFromName(info.name);
@@ -71,8 +73,13 @@ public class RecordingInboxWorker extends Worker {
             }
 
             s.recordingUri = uri;
-            if (s.endedAt <= 0L) s.endedAt = info.modified;
-            if (s.connectedAt <= 0L && info.durationMs > 0L) s.connectedAt = Math.max(0L, info.modified - info.durationMs);
+            if (s.createdAt <= 0L) s.createdAt = info.recordedAt;
+            if (s.connectedAt <= 0L) s.connectedAt = info.recordedAt;
+            if (s.endedAt <= 0L) {
+                s.endedAt = info.durationMs > 0L
+                        ? info.recordedAt + info.durationMs
+                        : info.recordedAt;
+            }
 
             String policy = PolicyStore.get(c, s.phone);
             if (AppPrefs.POLICY_NEVER.equals(policy)) s.status = "Skipped";
@@ -84,15 +91,19 @@ public class RecordingInboxWorker extends Worker {
 
             if ("QueuedForAI".equals(s.status)) ProcessCallWorker.enqueue(c, s.id);
         }
+
         return Result.success();
     }
 
     private static String phoneFromName(String name) {
         String n = name == null ? "" : name;
+
         Matcher m = IR_MOBILE.matcher(n);
         if (m.find()) return PhoneUtil.normalizeIran(m.group());
+
         m = IR_LOCAL.matcher(n);
         if (m.find()) return PhoneUtil.normalizeIran(m.group());
+
         return "";
     }
 
@@ -101,12 +112,17 @@ public class RecordingInboxWorker extends Worker {
         n = n.replaceFirst("(?i)\\.(m4a|amr|3gp|mp3|wav|ogg|aac|mp4)$", "");
         n = n.replaceFirst("(?i)^call\\s+", "");
         n = n.replaceFirst("_[0-9]{6}_[0-9]{6}$", "");
+
         if (phone != null && !phone.isEmpty()) {
             String last = PhoneUtil.lastDigits(phone, 7);
             if (!last.isEmpty()) n = n.replace(last, "");
         }
-        n = n.replaceAll("[_-]+", " ").replaceAll("\\s+", " ").trim();
-        if (n.length() > 44) n = n.substring(0, 44).trim();
+
+        n = n.replaceAll("[_-]+", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        if (n.length() > 64) n = n.substring(0, 64).trim();
         if (n.isEmpty()) return "ضبط سامسونگ";
         return n;
     }
