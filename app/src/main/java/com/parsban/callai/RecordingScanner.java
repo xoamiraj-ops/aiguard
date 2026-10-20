@@ -49,6 +49,12 @@ public final class RecordingScanner {
         List<RecordingInfo> out = new ArrayList<>();
         int[] count = new int[]{0};
         collectRecent(context, root, out, count, 0);
+        // Automatic inbox import keeps its existing 21-day scope. Manual latest
+        // lookup can still select an older recording when that is all the user has.
+        if (limit > 1) {
+            long cutoff = System.currentTimeMillis() - 21L * 24L * 60L * 60L * 1000L;
+            out.removeIf(f -> f.recordedAt < cutoff);
+        }
         out.sort((a, b) -> Long.compare(b.recordedAt, a.recordedAt));
 
         List<RecordingInfo> selected = new ArrayList<>(out.subList(0, Math.min(Math.max(limit, 0), out.size())));

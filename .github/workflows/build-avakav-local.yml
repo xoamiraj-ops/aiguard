@@ -25,6 +25,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Recording scanner regression tests
+        run: python3 scripts/test_recording_scanner.py
+
       - name: Fetch pinned local AI engines
         shell: bash
         run: |
