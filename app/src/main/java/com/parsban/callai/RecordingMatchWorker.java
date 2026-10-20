@@ -34,7 +34,19 @@ public class RecordingMatchWorker extends Worker {
             return Result.failure();
         }
 
-        Uri recording = RecordingScanner.findBest(c, s);
+        if (s.recordingUri != null && !s.recordingUri.isEmpty()) return Result.success();
+        Uri recording;
+        try { recording = RecordingScanner.findBest(c, s); }
+        catch (Exception e) {
+            s = db.get(id);
+            if (s == null || (s.recordingUri != null && !s.recordingUri.isEmpty())) return Result.success();
+            s.status = "RecordingNotFound";
+            s.error = "خواندن پوشه ضبط ناموفق بود: " + e.getMessage();
+            db.update(s);
+            return Result.failure();
+        }
+        s = db.get(id);
+        if (s == null || (s.recordingUri != null && !s.recordingUri.isEmpty())) return Result.success();
         if (recording == null) {
             if (getRunAttemptCount() < 4) return Result.retry();
             s.status = "RecordingNotFound";
@@ -44,6 +56,7 @@ public class RecordingMatchWorker extends Worker {
             return Result.failure();
         }
 
+        if (db.hasRecordingUri(recording.toString())) return Result.success();
         s.recordingUri = recording.toString();
         s.error = "";
 
@@ -66,3 +79,4 @@ public class RecordingMatchWorker extends Worker {
         return Result.success();
     }
 }
+

@@ -50,6 +50,13 @@ public final class AppDb extends SQLiteOpenHelper {
         }
     }
 
+    public synchronized CallSession byRecordingUri(String uri) {
+        try (Cursor c = getReadableDatabase().query("calls", null, "recording_uri=?",
+                new String[]{uri}, null, null, null, "1")) {
+            return c.moveToFirst() ? read(c) : null;
+        }
+    }
+
     public synchronized boolean hasRecordingUri(String uri) {
         if (uri == null || uri.isEmpty()) return false;
         try (Cursor c = getReadableDatabase().rawQuery(
@@ -161,3 +168,4 @@ public final class AppDb extends SQLiteOpenHelper {
         return s;
     }
 }
+

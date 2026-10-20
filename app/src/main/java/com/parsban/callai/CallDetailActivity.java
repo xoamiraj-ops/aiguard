@@ -62,6 +62,7 @@ public class CallDetailActivity extends Activity {
         transcript = findViewById(R.id.detail_transcript);
         error = findViewById(R.id.detail_error);
         analyze = findViewById(R.id.button_analyze);
+        findViewById(R.id.button_pick_recording).setOnClickListener(v -> RecordingPicker.open(this));
         audio = findViewById(R.id.button_audio);
 
         findViewById(R.id.button_back).setOnClickListener(v -> finish());
@@ -114,8 +115,16 @@ public class CallDetailActivity extends Activity {
         error.setVisibility(err.isEmpty() ? View.GONE : View.VISIBLE);
 
         boolean hasAudio = session.recordingUri != null && !session.recordingUri.isEmpty();
+        findViewById(R.id.button_pick_recording).setVisibility(hasAudio ? View.GONE : View.VISIBLE);
         analyze.setVisibility(hasAudio ? View.VISIBLE : View.GONE);
         audio.setVisibility(hasAudio ? View.VISIBLE : View.GONE);
+    }
+
+    @Override protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        RecordingPicker.receive(this, request, result, data, sessionId, id -> {
+            sessionId = id; render();
+        });
     }
 
     private void setSection(TextView v, String value, String empty) {
@@ -184,4 +193,5 @@ public class CallDetailActivity extends Activity {
         }
     }
 }
+
 

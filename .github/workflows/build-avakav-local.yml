@@ -60,20 +60,20 @@ jobs:
         run: gradle --no-daemon :app:lintRelease :app:assembleRelease
 
       - name: Package APK
-        run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.0-unsigned.apk
+        run: cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.1-unsigned.apk
 
       - name: Build separate preview APK
         run: |
           gradle --no-daemon :app:assembleRelease -PavakavPreview=true
-          cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.0-Preview-unsigned.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk AvaKav-Local-0.3.1-Preview-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AvaKav-Local-0.3.0-UNSIGNED
+          name: AvaKav-Local-0.3.1-UNSIGNED
           path: |
-            AvaKav-Local-0.3.0-unsigned.apk
-            AvaKav-Local-0.3.0-Preview-unsigned.apk
+            AvaKav-Local-0.3.1-unsigned.apk
+            AvaKav-Local-0.3.1-Preview-unsigned.apk
           if-no-files-found: error
 
       - name: Package signing tools
@@ -92,4 +92,5 @@ jobs:
           path: android-signing-tools/
           if-no-files-found: error
           retention-days: 1
+
 

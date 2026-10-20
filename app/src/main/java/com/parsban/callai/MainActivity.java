@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity {
+    private boolean scanning;
     private TextView screeningStatus;
     private TextView folderStatus;
     private TextView aiStatus;
@@ -61,6 +62,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class)));
         findViewById(R.id.button_role).setOnClickListener(v -> requestScreeningRole());
         findViewById(R.id.button_latest).setOnClickListener(v -> analyzeLatestRecording());
+        findViewById(R.id.button_pick_recording).setOnClickListener(v -> RecordingPicker.open(this));
         findViewById(R.id.button_search).setOnClickListener(v -> render());
 
         long fromNotification = getIntent().getLongExtra("sessionId", -1L);
@@ -99,36 +101,34 @@ public class MainActivity extends Activity {
     }
 
     private void analyzeLatestRecording() {
+        if (scanning) return;
         if (AppPrefs.recordingTree(this).isEmpty()) {
             Toast.makeText(this, "ابتدا پوشه ضبط سامسونگ را در تنظیمات انتخاب کن", Toast.LENGTH_LONG).show();
             return;
         }
+        scanning = true;
+        findViewById(R.id.button_latest).setEnabled(false);
         Toast.makeText(this, "در حال پیدا کردن آخرین فایل ضبط…", Toast.LENGTH_SHORT).show();
         executor.execute(() -> {
-            Uri uri = RecordingScanner.findNewest(this);
-            if (uri == null) {
-                runOnUiThread(() -> Toast.makeText(this, "فایل صوتی در پوشه انتخاب‌شده پیدا نشد", Toast.LENGTH_LONG).show());
-                return;
+            try {
+                Uri uri = RecordingScanner.findNewest(this);
+                if (uri == null) throw new IllegalStateException("فایل صوتی پیدا نشد؛ از انتخاب دستی فایل استفاده کن");
+                long id = RecordingPicker.attach(this, uri, -1);
+                runOnUiThread(() -> { render(); openDetail(id); });
+            } catch (Exception e) {
+                runOnUiThread(() -> new android.app.AlertDialog.Builder(this)
+                        .setTitle("جست‌وجوی ضبط ناموفق بود").setMessage(e.getMessage())
+                        .setPositiveButton("انتخاب دستی فایل", (d, w) -> RecordingPicker.open(this))
+                        .setNegativeButton("بستن", null).show());
+            } finally {
+                runOnUiThread(() -> { scanning = false; findViewById(R.id.button_latest).setEnabled(true); });
             }
-
-            CallSession s = new CallSession();
-            s.phone = "";
-            s.direction = "Manual";
-            s.createdAt = System.currentTimeMillis();
-            s.connectedAt = s.createdAt;
-            s.endedAt = s.createdAt;
-            s.status = "QueuedForAI";
-            s.contactName = "آخرین ضبط سامسونگ";
-            s.recordingUri = uri.toString();
-            s.id = new AppDb(this).insert(s);
-            ProcessCallWorker.enqueue(this, s.id);
-
-            runOnUiThread(() -> {
-                render();
-                Toast.makeText(this, "آخرین ضبط برای تحلیل ارسال شد", Toast.LENGTH_LONG).show();
-                openDetail(s.id);
-            });
         });
+    }
+
+    @Override protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        RecordingPicker.receive(this, request, result, data, -1, this::openDetail);
     }
 
     private void openDetail(long id) {
@@ -155,7 +155,7 @@ public class MainActivity extends Activity {
         String tree = AppPrefs.recordingTree(this);
         folderStatus.setText(tree.isEmpty()
                 ? "○ پوشه ضبط سامسونگ انتخاب نشده"
-                : "● پوشه ضبط سامسونگ متصل است");
+                : "● پوشه ضبط انتخاب شده است");
         folderStatus.setTextColor(Color.parseColor(tree.isEmpty() ? "#A44D47" : "#3F6B50"));
 
         boolean localReady = LocalModels.ready(this);
@@ -232,4 +232,5 @@ public class MainActivity extends Activity {
         }
     }
 }
+
 

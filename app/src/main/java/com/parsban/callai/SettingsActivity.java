@@ -69,7 +69,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void save(){ AppPrefs.setDefaultPolicy(this,policyAt(defaultPolicy.getSelectedItemPosition())); Toast.makeText(this,"تنظیمات آواکاو ذخیره شد",Toast.LENGTH_SHORT).show(); }
-    private void renderFolder(){ String raw=AppPrefs.recordingTree(this); folder.setText(raw.isEmpty()?"پوشه‌ای انتخاب نشده":"دسترسی دائمی پوشه برقرار است"); }
+    private void renderFolder(){ String raw=AppPrefs.recordingTree(this); folder.setText(raw.isEmpty()?"پوشه‌ای انتخاب نشده":"پوشه انتخاب شده است"); }
     private void renderModels(){
         LocalModels.ModelStatus s=LocalModels.status(this);
         modelStatus.setText(s.getText());
@@ -88,3 +88,4 @@ public class SettingsActivity extends Activity {
         AppPrefs.setRecordingTree(this,uri.toString()); renderFolder();
     }
 }
+

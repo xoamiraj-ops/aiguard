@@ -10,11 +10,11 @@ android {
     defaultConfig {
         val preview = providers.gradleProperty("avakavPreview").orNull == "true"
         applicationId = if (preview) "com.avakav.preview" else "com.avakav.personal"
-        manifestPlaceholders["appLabel"] = if (preview) "آواکاو • تست ۳" else "آواکاو"
+        manifestPlaceholders["appLabel"] = if (preview) "آواکاو • تست ۳.۱" else "آواکاو"
         minSdk = 33
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.3.0-local"
+        versionCode = 5
+        versionName = "0.3.1-local"
         ndk { abiFilters += listOf("arm64-v8a") }
     }
 
@@ -41,4 +41,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }
+
 

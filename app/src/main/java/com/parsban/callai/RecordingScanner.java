@@ -1,6 +1,9 @@
 package com.parsban.callai;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.DocumentsContract;
+import java.util.ArrayDeque;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
@@ -48,57 +51,55 @@ public final class RecordingScanner {
         collectRecent(context, root, out, count, 0);
         out.sort((a, b) -> Long.compare(b.recordedAt, a.recordedAt));
 
-        if (out.size() > limit) return new ArrayList<>(out.subList(0, limit));
-        return out;
+        List<RecordingInfo> selected = new ArrayList<>(out.subList(0, Math.min(Math.max(limit, 0), out.size())));
+        if (limit > 1) {
+            List<RecordingInfo> timed = new ArrayList<>();
+            for (RecordingInfo f : selected) timed.add(new RecordingInfo(f.uri, f.name, f.modified,
+                    f.recordedAt, duration(context, f.uri)));
+            return timed;
+        }
+        return selected;
     }
 
     private static DocumentFile root(Context context) {
         String rawTree = AppPrefs.recordingTree(context);
         if (rawTree == null || rawTree.isEmpty()) return null;
         DocumentFile root = DocumentFile.fromTreeUri(context, Uri.parse(rawTree));
-        return root != null && root.exists() ? root : null;
+        if (root == null || !root.exists() || !root.canRead())
+            throw new IllegalStateException("پوشه ضبط قابل خواندن نیست؛ پوشه Call را دوباره انتخاب کن");
+        return root;
     }
 
-    private static void collectRecent(
-            Context context,
-            DocumentFile node,
-            List<RecordingInfo> out,
-            int[] count,
-            int depth
-    ) {
-        if (depth > 5 || count[0] > 2500) return;
-
-        DocumentFile[] children;
-        try { children = node.listFiles(); } catch (Exception e) { return; }
-
-        long cutoff = System.currentTimeMillis() - 21L * 24L * 60L * 60L * 1000L;
-
-        for (DocumentFile file : children) {
-            if (count[0]++ > 2500) return;
-
-            if (file.isDirectory()) {
-                collectRecent(context, file, out, count, depth + 1);
-                continue;
+    // Query all metadata in one cursor per directory. Do not discard newer files
+    // merely because a provider returns old entries first.
+    private static void collectRecent(Context context, DocumentFile node,
+            List<RecordingInfo> out, int[] count, int depth) {
+        ArrayDeque<String> pending = new ArrayDeque<>();
+        Uri tree = node.getUri();
+        pending.add(DocumentsContract.getDocumentId(tree));
+        int directories = 0;
+        while (!pending.isEmpty()) {
+            if (Thread.currentThread().isInterrupted()) throw new IllegalStateException("جست‌وجوی فایل لغو شد");
+            if (++directories > 512) throw new IllegalStateException("پوشه بسیار گسترده است؛ خود پوشه Call را انتخاب کن");
+            Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, pending.removeFirst());
+            String[] columns = {DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_LAST_MODIFIED};
+            try (Cursor cursor = context.getContentResolver().query(children, columns, null, null, null)) {
+                if (cursor == null) throw new IllegalStateException("خواندن فهرست پوشه ناموفق بود؛ پوشه را دوباره انتخاب کن");
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(0), name = cursor.getString(1), mime = cursor.getString(2);
+                    if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)) { pending.add(id); continue; }
+                    if (!isAudio(name, mime)) continue;
+                    long modified = cursor.isNull(3) ? 0 : cursor.getLong(3);
+                    long named = samsungTime(name);
+                    out.add(new RecordingInfo(DocumentsContract.buildDocumentUriUsingTree(tree, id),
+                            name == null ? "" : name, modified, named > 0 ? named : modified, 0));
+                }
+            } catch (SecurityException e) {
+                throw new IllegalStateException("دسترسی خواندن پوشه برقرار نیست؛ پوشه Call را دوباره انتخاب کن", e);
             }
-
-            String name = file.getName();
-            if (!isAudio(name, file.getType())) continue;
-
-            long modified = file.lastModified();
-            long fromName = samsungTime(name);
-            long recordedAt = fromName > 0L
-                    ? fromName
-                    : (modified > 0L ? modified : System.currentTimeMillis());
-
-            if (recordedAt < cutoff) continue;
-
-            out.add(new RecordingInfo(
-                    file.getUri(),
-                    name == null ? "" : name,
-                    modified,
-                    recordedAt,
-                    duration(context, file.getUri())
-            ));
         }
     }
 
@@ -110,25 +111,13 @@ public final class RecordingScanner {
             int[] count,
             int depth
     ) {
-        if (depth > 5 || count[0] > 2500) return;
-
-        DocumentFile[] children;
-        try { children = node.listFiles(); } catch (Exception e) { return; }
-
-        for (DocumentFile file : children) {
-            if (count[0]++ > 2500) return;
-
-            if (file.isDirectory()) {
-                scanForCall(context, file, session, best, count, depth + 1);
-                continue;
-            }
-
-            String name = file.getName();
-            if (!isAudio(name, file.getType())) continue;
-
+        List<RecordingInfo> candidates = new ArrayList<>();
+        collectRecent(context, node, candidates, count, depth);
+        for (RecordingInfo file : candidates) {
+            String name = file.name;
             double score = 0.0;
             long fileNameTime = samsungTime(name);
-            long modified = file.lastModified();
+            long modified = file.modified;
 
             if (fileNameTime > 0L) {
                 long diff = bestSessionTimeDiff(session, fileNameTime);
@@ -179,7 +168,7 @@ public final class RecordingScanner {
             }
 
             long callDuration = session.durationMs();
-            long audioDuration = duration(context, file.getUri());
+            long audioDuration = callDuration > 0L ? duration(context, file.uri) : 0L;
             if (callDuration > 0L && audioDuration > 0L) {
                 long diff = Math.abs(callDuration - audioDuration);
                 if (diff < 10_000L) score += 320.0;
@@ -190,7 +179,7 @@ public final class RecordingScanner {
 
             if (score > best.score) {
                 best.score = score;
-                best.uri = file.getUri();
+                best.uri = file.uri;
             }
         }
     }
@@ -279,3 +268,4 @@ public final class RecordingScanner {
         }
     }
 }
+
